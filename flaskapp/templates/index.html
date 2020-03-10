@@ -1,6 +1,8 @@
-<html>
-    <body>
-        <p class="hello">hello world</p>
-        <p>{{a}}</p>
-    </body>
-</html>
+{% extends "layout.html" %}
+{% include "header.html" %}
+{% block body %}
+<body>
+    <p class="hello">hello world</p>
+    <p>{{a}}</p>
+</body>
+{% endblock %}
