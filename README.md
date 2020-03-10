@@ -32,4 +32,9 @@ git commit -am "deploy heroku"
 
 git push heroku master
 
-https://bsvcontentserver.herokuapp.com/
+https://bsvstorserver.herokuapp.com/
+
+https://test.whatsonchain.com/
+
+txid:
+c09f039ca4a919aec0d33fbf3931c35989240892b3f29da11fc66ed65695f967
