@@ -11,7 +11,7 @@ pip3 install gunicorn
 pip3 install requests
 pip3 install flask-bootstrap4
 
-pip3 freeze > requirements.txt
+pip3 freeze | grep -v "pkg-resources" > requirements.txt
 
 pip3 install -r requirements.txt
 
