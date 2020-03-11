@@ -9,11 +9,11 @@ def index():
     html = render_template('index.html', a = 'aaaa', title="HelloTitle")
     return html
 
-@app.route("/download", methods=["GET", "POST"])
-def download():
+@app.route("/download/<qtxid>", methods=["GET", "POST"])
+def download(qtxid=None):
     try:
         if request.method == "GET":
-            html = render_template('download.html', title="download")
+            html = render_template('download.html', title="download", transaction=qtxid)
             return html
         elif request.method == "POST":
             txid = request.form["transaction"]
@@ -46,6 +46,7 @@ def download():
             elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
                 response.data = op_return['parts'][0]
             else:
+                print('upload_charset' + upload_charset)
                 response.data = ''
             downloadFilename = upload_filename
             response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename

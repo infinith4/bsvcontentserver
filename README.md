@@ -37,7 +37,11 @@ https://bsvstorserver.herokuapp.com/
 https://test.whatsonchain.com/
 
 txid:
-c09f039ca4a919aec0d33fbf3931c35989240892b3f29da11fc66ed65695f967
+
+binary
+https://api.whatsonchain.com/v1/bsv/test/tx/hash/47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
+
+text
 cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
 
 
