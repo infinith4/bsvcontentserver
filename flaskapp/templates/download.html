@@ -1,10 +1,15 @@
-{% extends "layout.html" %}
-{% include "header.html" %}
-{% block body %}
-<body>
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Hello{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+    <h1>Download file on BSV</h1>
+
     <form method ="post" enctype = "multipart/form-data">
         <input type="text" name = "transaction" value={{transaction}}>
         <input type ="submit" value ="download">
     </form>
-</body>
+</div>
 {% endblock %}

@@ -6,7 +6,12 @@ import binascii
 
 @app.route('/')
 def index():
-    html = render_template('index.html', a = 'aaaa', title="HelloTitle")
+    html = render_template('bootstrap_base.html', a = 'aaaa', title="HelloTitle")
+    return html
+
+@app.route('/layout')
+def layout():
+    html = render_template('layout.html', a = 'aaaa', title="HelloaaTitle")
     return html
 
 @app.route("/download/<qtxid>", methods=["GET", "POST"])
