@@ -1,5 +1,5 @@
 
-
+```
 deactivate
 python3 -m venv herokuenv
 source herokuenv/bin/activate
@@ -31,6 +31,7 @@ git add .
 git commit -am "deploy heroku"
 
 git push heroku master
+```
 
 https://bsvstorserver.herokuapp.com/
 
