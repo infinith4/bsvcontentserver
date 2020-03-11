@@ -4,12 +4,12 @@
 {% block content %}
 <div class="form">
     <div class="container">
-        <div class="page-header">
-            <h4>Download file on BSV blockchain(testnet)</h4>
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h4>Download file on BSV(testnet)</h4>
         </div>
         <form method ="post" enctype = "multipart/form-data">
             <div class="form-group">
-                <label for="transactionid">Text:</label>
+                <label for="transactionid">txid:</label>
                 <input type="text" id="transactionid" name="transaction" class="form-control" value={{transaction}}>
               </div>
             <input type ="submit" value ="download" class="btn btn-outline-primary">

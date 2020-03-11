@@ -14,9 +14,11 @@ def newlayout():
     html = render_template('newlayout.html', title="HelloaaTitle")
     return html
 
-@app.route("/download/<qtxid>", methods=["GET", "POST"])
-def download(qtxid=""):
+@app.route('/download', defaults={'qtxid': ""}, methods=["GET", "POST"])
+@app.route("/download/<string:qtxid>", methods=["GET", "POST"])
+def download(qtxid=''):
     try:
+        print(request.method)
         if request.method == "GET":
             html = render_template('download.html', title="download", transaction=qtxid)
             return html
