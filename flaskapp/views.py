@@ -9,12 +9,12 @@ def index():
     html = render_template('bootstrap_base.html', a = 'aaaa', title="HelloTitle")
     return html
 
-@app.route('/layout')
-def layout():
-    html = render_template('layout.html', a = 'aaaa', title="HelloaaTitle")
+@app.route('/newlayout')
+def newlayout():
+    html = render_template('newlayout.html', title="HelloaaTitle")
     return html
 
-@app.route("/download/<qtxid>", methods=["GET", "POST"])
+@app.route("/download", methods=["GET", "POST"])
 def download(qtxid=None):
     try:
         if request.method == "GET":
