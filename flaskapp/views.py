@@ -14,8 +14,8 @@ def newlayout():
     html = render_template('newlayout.html', title="HelloaaTitle")
     return html
 
-@app.route("/download", methods=["GET", "POST"])
-def download(qtxid=None):
+@app.route("/download/<qtxid>", methods=["GET", "POST"])
+def download(qtxid=""):
     try:
         if request.method == "GET":
             html = render_template('download.html', title="download", transaction=qtxid)
@@ -26,10 +26,7 @@ def download(qtxid=None):
             headers = {"content-type": "application/json"}
             r = requests.get(url, headers=headers)
             data = r.json()
-            print(json.dumps(data, indent=4))
             op_return = data['vout'][0]['scriptPubKey']['opReturn']
-            print(json.dumps(op_return, indent=4))  ## bcat.bico.media
-            print(op_return['parts'][0])
             upload_data = data['vout'][0]['scriptPubKey']['asm'].split()[3] ##uploaddata (charactor)
             upload_mimetype = op_return['parts'][1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
             upload_charset = op_return['parts'][2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)

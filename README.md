@@ -49,12 +49,10 @@ cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
 # heroku
 
 heroku logs --tail
-<<<<<<< HEAD
-
 
 ## bootstrap
 
+```
 pip3 install wheel
-pip3 install flask-bootstrap
-=======
->>>>>>> master
+pip3 install flask-bootstrap4
+```

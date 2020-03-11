@@ -4,10 +4,15 @@
 {% block content %}
 <div class="form">
     <div class="container">
-        <div class="page-header">aaaaa</div>
+        <div class="page-header">
+            <h4>Download file on BSV blockchain(testnet)</h4>
+        </div>
         <form method ="post" enctype = "multipart/form-data">
-        <input type="text" name = "transaction" value={{transaction}}>
-        <input type ="submit" value ="download">
+            <div class="form-group">
+                <label for="transactionid">Text:</label>
+                <input type="text" id="transactionid" name="transaction" class="form-control" value={{transaction}}>
+              </div>
+            <input type ="submit" value ="download" class="btn btn-outline-primary">
         </form>
     </div>
 </div>
