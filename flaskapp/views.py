@@ -6,7 +6,7 @@ import binascii
 
 @app.route('/')
 def index():
-    html = render_template('bootstrap_base.html', a = 'aaaa', title="HelloTitle")
+    html = render_template('index.html', title="Home")
     return html
 
 @app.route('/newlayout')
@@ -36,15 +36,8 @@ def download(qtxid=''):
             print("upload_mimetype: " + upload_mimetype)
             print("upload_charset: " + upload_charset)
             print("upload_filename: " + upload_filename)
-            
-            #download_path = './application/download'
-            # if not os.path.isdir(download_path):
-            #     os.mkdir(download_path)
-            # path_w = os.path.join(download_path, txid)
-            # with open(path_w, mode='wb') as f:
-            #     f.write(binascii.unhexlify(binary))
             response = make_response()
-            if upload_charset == 'binary':  #c09f039ca4a919aec0d33fbf3931c35989240892b3f29da11fc66ed65695f967
+            if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
                 #print(binascii.hexlify(upload_data))
                 response.data = binascii.unhexlify(upload_data)
             elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
