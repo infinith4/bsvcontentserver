@@ -57,3 +57,10 @@ heroku logs --tail
 pip3 install wheel
 pip3 install flask-bootstrap4
 ```
+
+
+## Config
+
+https://msiz07-flask-docs-ja.readthedocs.io/ja/latest/config.html
+
+export FLASK_CONFIG_FILE=[absolute config.py path]

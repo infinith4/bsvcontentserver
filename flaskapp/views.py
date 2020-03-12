@@ -3,9 +3,14 @@ from flask import request, redirect, url_for, render_template, flash, make_respo
 import requests
 import json
 import binascii
+# import logging
+# logging.basicConfig(filename='example.log',level=logging.DEBUG)
+# logger = logging.getLogger(__name__)
 
 @app.route('/')
 def index():
+    #logger.error("warn test")
+    app.logger.info('%s failed to log in')
     html = render_template('index.html', title="Home")
     return html
 
