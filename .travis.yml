@@ -10,5 +10,7 @@ install: pip3 install -r requirements.txt
 before_script:
   - export FLASK_APP="$TRAVIS_BUILD_DIR/autoapp.py"
   - export FLASK_DEBUG=1
-
+  - export FLASK_CONFIG_FILE="$TRAVIS_BUILD_DIR/config.py"
+env:
+  - 
 script: python run.py test
