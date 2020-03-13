@@ -23,7 +23,7 @@ handlers:
     formatter: customFormatter
     class: logging.handlers.TimedRotatingFileHandler
     level: DEBUG
-    filename: logs/debug.log
+    filename: server_logs/debug.log
     encoding: utf8
     when: 'D'
     interval: 1

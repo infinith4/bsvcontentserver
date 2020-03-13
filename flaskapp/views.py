@@ -10,7 +10,8 @@ import binascii
 @app.route('/')
 def index():
     #logger.error("warn test")
-    app.logger.info('%s failed to log in')
+    app.logger.debug('debug test')
+    app.logger.info('info failed to log in')
     html = render_template('index.html', title="Home")
     return html
 
