@@ -10,6 +10,7 @@ pip3 install flask
 pip3 install gunicorn
 pip3 install requests
 pip3 install flask-bootstrap4
+pip3 install pyyaml
 
 pip3 freeze | grep -v "pkg-resources" > requirements.txt
 
