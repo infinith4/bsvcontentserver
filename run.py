@@ -12,4 +12,4 @@ if __name__ == '__main__':
         logging.config.dictConfig(conf_file) # 設定の完了
     #logging.config.fileConfig("log_config.yaml")
     # Threaded option to enable multiple instances for multiple user access support
-    app.run(threaded=True, port=5001)
+    app.run(debug=True, threaded=True, port=5001)
