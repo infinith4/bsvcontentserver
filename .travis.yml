@@ -13,4 +13,4 @@ before_script:
   - export FLASK_CONFIG_FILE="$TRAVIS_BUILD_DIR/config.py"
 env:
   - 
-script: python run.py test
+script: pytest
