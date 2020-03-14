@@ -50,7 +50,9 @@ cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
 
 # heroku
 
+```
 heroku logs --tail
+```
 
 ## bootstrap
 
@@ -64,17 +66,25 @@ pip3 install flask-bootstrap4
 
 https://msiz07-flask-docs-ja.readthedocs.io/ja/latest/config.html
 
+```
 export FLASK_CONFIG_FILE=[absolute config.py path]
 
 echo $FLASK_CONFIG_FILE
+```
 
 ## on heroku 
+
+```
 $ heroku run bash
 
 pwd
 /app
+```
 
 環境変数一覧表示
+
+```
 $heroku config
 
 $heroku config:set FLASK_CONFIG_FILE=/app/config.py
+```
