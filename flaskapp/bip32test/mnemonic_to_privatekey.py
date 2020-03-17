@@ -29,12 +29,59 @@ seed = mnemonic.Mnemonic.to_seed(bsvmnemonic, passphrase="")
 
 print("seed")
 print(seed)
-from moneywagon import generate_keypair  #pip3 install moneywagon
-address = generate_keypair('btc', seed)  #https://tutorialmore.com/questions-2136330.htm
-#print(address['public']['address'])
-print(address['private']['hex'])
-print(address['private']['wif_uncompressed'])
+# from moneywagon import generate_keypair  #pip3 install moneywagon
+# address = generate_keypair('btc', seed)  #https://tutorialmore.com/questions-2136330.htm
+# #print(address['public']['address'])
+# print(address['private']['hex'])
+# print(address['private']['wif_uncompressed'])
 
+import hashlib
+import hmac
+
+network = 'test'
+if len(seed) != 64:
+    raise ValueError("Provided seed should have length of 64")
+
+# Compute HMAC-SHA512 of seed
+seed = hmac.new(b"Bitcoin seed", seed, digestmod=hashlib.sha512).digest()
+
+# Serialization format can be found at: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Serialization_format
+if network == 'main':
+    xprv = b"\x04\x88\xad\xe4"  # Version for private mainnet
+elif network == 'test':
+    xprv = b"\x04\x35\x83\x94"  # Version for private testnet
+xprv += b"\x00" * 9  # Depth, parent fingerprint, and child number
+xprv += seed[32:]  # Chain code
+xprv += b"\x00" + seed[:32]  # Master key
+
+# Double hash using SHA256
+hashed_xprv = hashlib.sha256(xprv).digest()
+hashed_xprv = hashlib.sha256(hashed_xprv).digest()
+
+# Append 4 bytes of checksum
+xprv += hashed_xprv[:4]
+
+def b58encode(v):
+    alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+    p, acc = 1, 0
+    for c in reversed(v):
+        if sys.version < "3":
+            c = ord(c)
+        acc += p * c
+        p = p << 8
+
+    string = ""
+    while acc:
+        acc, idx = divmod(acc, 58)
+        string = alphabet[idx : idx + 1] + string
+    return string
+
+# Return base58
+print("return base58")
+masterkey_testnet = b58encode(xprv)
+print("masterkey_testnet")
+print(masterkey_testnet)
 
 
 masterkey = mnemonic.Mnemonic.to_hd_master_key(seed)
@@ -91,8 +138,8 @@ print(tprvbytehex)
 #         # Return base58
 #         return b58encode(xprv)
 
-masterkey_testnet = mnemonic.Mnemonic.to_hd_master_key(seed)
-print(masterkey_testnet)  ##prefix is tprv. Base58エンコードした値
+#masterkey_testnet = mnemonic.Mnemonic.to_hd_master_key(seed)
+#print(masterkey_testnet)  ##prefix is tprv. Base58エンコードした値
 
 # Note: I cant find bsvbip32 package on pypi.
 # then I install from source code ( https://github.com/AustEcon/bsvbip32 )
