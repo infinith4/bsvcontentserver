@@ -3,6 +3,15 @@ from flask import request, redirect, url_for, render_template, flash, make_respo
 import requests
 import json
 import binascii
+import bitsv
+from flaskapp.bip39mnemonic import Bip39Mnemonic
+import os
+# ファイル名をチェックする関数
+from werkzeug.utils import secure_filename
+import polyglot  # pip3 install polyglot-bitcoin
+import requests
+import json
+
 # import logging
 # logging.basicConfig(filename='example.log',level=logging.DEBUG)
 # logger = logging.getLogger(__name__)
@@ -57,3 +66,96 @@ def download(qtxid=''):
             return response
     except Exception as e:
         print(e)
+
+
+@app.route('/mnemonic', methods=["GET", "POST"])
+def mnemonic():
+    if request.method == "GET":
+        html = render_template('mnemonic.html', title="mnemonic")
+        return html
+    elif request.method == "POST":
+        mnemonic = request.form["mnemonic"]  #app.config['TESTNET_MNEMONIC']
+        bip39Mnemonic = Bip39Mnemonic(mnemonic, passphrase="", network="test")
+        privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif)
+        address = privateKey.address
+        balance_satoshi = privateKey.get_balance()
+        balance_bsv = float(balance_satoshi) / float(100000000)
+        html = render_template(
+            'mnemonic.html',
+            privatekey_wif = bip39Mnemonic.privatekey_wif,
+            address = address,
+            balance_satoshi = balance_satoshi,
+            balance_bsv = balance_bsv,
+            title="mnemonic")
+        return html
+
+@app.route("/upload", methods=["GET", "POST"])
+def upload_file():
+    if request.method == 'GET':
+        html = render_template('upload.html', title="upload")
+        return html
+    # リクエストがポストかどうかの判別
+    elif request.method == 'POST':
+        bsv_mnemonic = request.form["mnemonic"]  #app.config['TESTNET_MNEMONIC']
+        bip39Mnemonic = Bip39Mnemonic(bsv_mnemonic, passphrase="", network="test")
+        
+        # ファイルがなかった場合の処理
+        if 'file' not in request.files:
+            print('ファイルがありません')
+            flash('ファイルがありません')
+            return redirect(request.url)
+        # データの取り出し
+        req_file = request.files['file']
+        print(req_file)
+        stream = req_file.stream
+        #img_array = np.asarray(bytearray(stream.read()), dtype=np.uint8)
+
+        # ファイル名がなかった時の処理
+        if req_file.filename == '':
+            flash('ファイルがありません')
+            return redirect(request.url)
+        # ファイルのチェック
+        if req_file and allwed_file(req_file.filename):
+            # 危険な文字を削除（サニタイズ処理）
+            #filename = secure_filename(req_file.filename)
+            # ファイルの保存
+            #filepath = os.path.join(app.config['UPLOAD_FOLDER'], req_file.filename)
+            #req_file.save(filepath)
+            uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, 'test')
+            print(uploader.network)
+            req_file_bytearray = bytearray(stream.read())
+            print(req_file_bytearray)
+            #transaction = uploader.bcat_parts_send_from_binary(req_file_bytearray)
+            media_type = uploader.get_media_type_for_file_name(req_file.filename)
+            encoding = uploader.get_encoding_for_file_name(req_file.filename)
+            print(media_type)
+            print(encoding)
+            rawtx = uploader.b_create_rawtx_from_binary(req_file_bytearray, media_type, encoding, req_file.filename)
+            txid = uploader.send_rawtx(rawtx)
+            #transaction = uploader.upload_b(filepath)
+            #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
+            print(txid)
+            # アップロード後のページに転送
+            html = render_template(
+                'uploaded.html', 
+                transaction = txid, 
+                privatekey_wif = bip39Mnemonic.privatekey_wif,
+                title="mnemonic")
+
+            return html
+        else:
+            html = render_template(
+                'uploaded.html', 
+                transaction = "error", 
+                privatekey_wif = bip39Mnemonic.privatekey_wif,
+                title="mnemonic")
+            return html
+
+# アップロードされる拡張子の制限
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'gif', 'txt'])
+
+def allwed_file(filename):
+    # .があるかどうかのチェックと、拡張子の確認
+    # OKなら１、だめなら0
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+

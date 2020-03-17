@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% include "header.html" %}
+{% block body %}
+<body>
+    <p class="hello">uploaded</p>
+    <p>privatekey_wif</p>
+    <p>{{privatekey_wif}}</p>
+    <p>transaction</p>
+    <p>
+        <a href="https://api.whatsonchain.com/v1/bsv/test/tx/hash/{{transaction}}">{{transaction}}</a>
+    </p>
+</body>
+{% endblock %}
