@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% include "header.html" %}
+
+{% block content %}
+<div class="form">
+    <div class="container">
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h4>Note(testnet)</h4>
+        </div>
+        <form method ="post" enctype = "multipart/form-data">
+            <div class="form-group">
+                <label for="mnemonic_words">mnemonic_words:</label>
+                <input type="text" name = "mnemonic_words" class="form-control">
+                <label for="message">message:</label>
+                <textarea name = "message" rows="6" cols="40" class="form-control"></textarea>
+                <input type ="submit" value ="send" class="btn btn-outline-primary">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

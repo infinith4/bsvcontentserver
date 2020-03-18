@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 import polyglot  # pip3 install polyglot-bitcoin
 import requests
 import json
+import datetime
 
 # import logging
 # logging.basicConfig(filename='example.log',level=logging.DEBUG)
@@ -89,7 +90,7 @@ def mnemonic():
             title="mnemonic")
         return html
 
-@app.route("/upload", methods=["GET", "POST"])
+@app.route("/upload", methods=["GET"])
 def upload_file():
     if request.method == 'GET':
         html = render_template('upload.html', title="upload")
@@ -159,3 +160,43 @@ def allwed_file(filename):
     # OKなら１、だめなら0
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+from io import StringIO
+@app.route('/note', methods=["GET", "POST"])
+def note():
+    try:
+        if request.method == "GET":
+            html = render_template('note.html', title="note")
+            return html
+        elif request.method == "POST":
+            mnemonic_words = request.form["mnemonic_words"]
+            message = request.form["message"]
+            bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
+            #stream = StringIO(message)
+            #stream = message.stream
+
+            uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
+            req_file_bytearray = bytearray()
+            req_file_bytearray.extend(map(ord, message))
+            #req_file_bytearray = bytearray(stream.read())
+            print(req_file_bytearray)
+            #transaction = uploader.bcat_parts_send_from_binary(req_file_bytearray)
+            media_type = "text/plain"
+            encoding = "utf-8"
+            print(media_type)
+            print(encoding)
+            file_name = format(datetime.date.today(), '%Y%m%d')
+            rawtx = uploader.b_create_rawtx_from_binary(req_file_bytearray, media_type, encoding, file_name)
+            txid = uploader.send_rawtx(rawtx)
+            #transaction = uploader.upload_b(filepath)
+            #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
+            print(txid)
+            # アップロード後のページに転送
+            html = render_template(
+                'uploaded.html', 
+                transaction = txid, 
+                privatekey_wif = bip39Mnemonic.privatekey_wif,
+                title="mnemonic")
+
+            return html
+    except Exception as e:
+        print(e)
