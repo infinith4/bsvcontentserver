@@ -11,13 +11,11 @@ class Bip39Mnemonic(object):
         seed = mnemonic.Mnemonic.to_seed(mnemonic_words, passphrase)
         #self.masterkey = mnemonic.Mnemonic.to_hd_master_key(seed)
 
-        print(seed)
         print(network)
         self.extended_key = self.to_hd_master_key(seed, network == 'test')
-        print(self.extended_key)
+        #print(self.extended_key)
         self.node = key.Key.from_text(self.extended_key)
         if self.node.is_private():
-            print("is_private")
             self.privatekey_wif = self.node.wif()
         else:
             raise ValueError("Your Bip32_Node is not derived from an xprv")

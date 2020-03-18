@@ -76,7 +76,7 @@ def mnemonic():
     elif request.method == "POST":
         mnemonic = request.form["mnemonic"]  #app.config['TESTNET_MNEMONIC']
         bip39Mnemonic = Bip39Mnemonic(mnemonic, passphrase="", network="test")
-        privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif)
+        privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif, network = 'test')
         address = privateKey.address
         balance_satoshi = privateKey.get_balance()
         balance_bsv = float(balance_satoshi) / float(100000000)
