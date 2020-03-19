@@ -174,14 +174,15 @@ def note():
             #stream = StringIO(message)
             #stream = message.stream
 
+            encoding = "utf-8"
             uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
-            req_file_bytearray = bytearray()
-            req_file_bytearray.extend(map(ord, message))
+            #req_file_bytearray = bytearray()
+            #req_file_bytearray.extend(map(ord, message))
             #req_file_bytearray = bytearray(stream.read())
-            print(req_file_bytearray)
+            #print(req_file_bytearray)
+            req_file_bytearray = bytearray(message.encode(encoding))
             #transaction = uploader.bcat_parts_send_from_binary(req_file_bytearray)
             media_type = "text/plain"
-            encoding = "utf-8"
             print(media_type)
             print(encoding)
             file_name = format(datetime.date.today(), '%Y%m%d')
