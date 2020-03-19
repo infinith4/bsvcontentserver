@@ -180,13 +180,20 @@ def note():
             #req_file_bytearray.extend(map(ord, message))
             #req_file_bytearray = bytearray(stream.read())
             #print(req_file_bytearray)
-            req_file_bytearray = bytearray(message.encode(encoding))
+            message_bytes = message.encode(encoding)
+            message_bytes_length = len(message_bytes)
+            print(message_bytes_length)
+            if(message_bytes_length >= 100000):   #more less 100kb = 100000bytes.
+                html = render_template('note.html', title="note", error_msg="text data have to be 100kb or less")
+                return html
+
+            req_bytearray = bytearray(message_bytes)
             #transaction = uploader.bcat_parts_send_from_binary(req_file_bytearray)
             media_type = "text/plain"
             print(media_type)
             print(encoding)
             file_name = format(datetime.date.today(), '%Y%m%d')
-            rawtx = uploader.b_create_rawtx_from_binary(req_file_bytearray, media_type, encoding, file_name)
+            rawtx = uploader.b_create_rawtx_from_binary(req_bytearray, media_type, encoding, file_name)
             txid = uploader.send_rawtx(rawtx)
             #transaction = uploader.upload_b(filepath)
             #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
@@ -195,7 +202,7 @@ def note():
             html = render_template(
                 'uploaded.html', 
                 transaction = txid, 
-                privatekey_wif = bip39Mnemonic.privatekey_wif,
+                #privatekey_wif = bip39Mnemonic.privatekey_wif,
                 title="mnemonic")
 
             return html
