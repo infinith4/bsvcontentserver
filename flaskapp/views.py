@@ -161,20 +161,39 @@ def allwed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 from io import StringIO
-@app.route('/note', methods=["GET", "POST"])
-def note():
+@app.route('/note', defaults={'qaddr': ""}, methods=["GET", "POST"])
+@app.route('/note/<string:qaddr>', methods=["GET", "POST"])
+def note(qaddr=''):
     try:
         if request.method == "GET":
+            ## get bsv text list
             html = render_template('note.html', title="note")
             return html
         elif request.method == "POST":
             mnemonic_words = request.form["mnemonic_words"]
+            bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
+            privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif, network = 'test')
+            transactions = privateKey.get_transactions()
+            print("transactions")
+            print(transactions)
+
+            textdata_list = []
+            for txid in reversed(transactions):
+                res_get_textdata = get_textdata(txid)
+                if res_get_textdata != None and res_get_textdata.mimetype == 'text/plain':
+                    textdata_list.append(res_get_textdata.data.decode('utf-8'))
+            print("textdata_list")
+            print(textdata_list)
+
+
             message = request.form["message"]
             bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
             #stream = StringIO(message)
             #stream = message.stream
 
             encoding = "utf-8"
+            print("bip39Mnemonic.privatekey_wif")
+            print(bip39Mnemonic.privatekey_wif)
             uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
             #req_file_bytearray = bytearray()
             #req_file_bytearray.extend(map(ord, message))
@@ -193,18 +212,63 @@ def note():
             print(media_type)
             print(encoding)
             file_name = format(datetime.date.today(), '%Y%m%d')
+            print(uploader.filter_utxos_for_bcat())
             rawtx = uploader.b_create_rawtx_from_binary(req_bytearray, media_type, encoding, file_name)
             txid = uploader.send_rawtx(rawtx)
             #transaction = uploader.upload_b(filepath)
             #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
+            print("upload txid")
             print(txid)
             # アップロード後のページに転送
-            html = render_template(
-                'uploaded.html', 
-                transaction = txid, 
-                #privatekey_wif = bip39Mnemonic.privatekey_wif,
-                title="mnemonic")
+            # html = render_template(
+            #     'uploaded.html', 
+            #     transaction = txid, 
+            #     #privatekey_wif = bip39Mnemonic.privatekey_wif,
+            #     title="mnemonic")
 
+            # return html
+            if txid == "":
+                html = render_template('note.html', title="note", error_msg="upload failed")
+                return html
+
+                
+            html = render_template('note.html', title="note", uploaded_message=message, textdata_list=textdata_list)
             return html
+    except Exception as e:
+        print(e)
+
+
+def get_textdata(txid):
+    try:
+        print("txid")
+        print(txid)
+        if txid != "":
+            url = "https://api.whatsonchain.com/v1/bsv/test/tx/hash/" + txid
+            headers = {"content-type": "application/json"}
+            r = requests.get(url, headers=headers)
+            data = r.json()
+            print(json.dumps(data, indent=4))
+            op_return = data['vout'][0]['scriptPubKey']['opReturn']
+            upload_data = data['vout'][0]['scriptPubKey']['asm'].split()[3] ##uploaddata (charactor)
+            upload_mimetype = op_return['parts'][1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
+            upload_charset = op_return['parts'][2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)
+            upload_filename = op_return['parts'][3] ##filename
+            print("upload_mimetype: " + upload_mimetype)
+            print("upload_charset: " + upload_charset)
+            print("upload_filename: " + upload_filename)
+            response = make_response()
+            if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
+                #print(binascii.hexlify(upload_data))
+                response.data = binascii.unhexlify(upload_data)
+            elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
+                response.data = op_return['parts'][0]
+            else:
+                print('upload_charset' + upload_charset)
+                response.data = ''
+            downloadFilename = upload_filename
+            response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename
+            response.mimetype = upload_mimetype
+            print(response.data)
+            return response
     except Exception as e:
         print(e)

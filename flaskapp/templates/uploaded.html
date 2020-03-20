@@ -1,12 +1,19 @@
 {% extends "layout.html" %}
 {% include "header.html" %}
 {% block content %}
-<p class="hello">uploaded</p>
-<p>transaction</p>
-<p>
-    <a href="https://api.whatsonchain.com/v1/bsv/test/tx/hash/{{transaction}}">{{transaction}}</a>
-</p>
-<p>
-    <a href="/download/{{transaction}}">{{transaction}}</a>
-</p>
+<div class="form">
+    <div class="container">
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h4>Upload Result</h4>
+        </div>
+        <label for="transaction">Download transaction data</label>
+        <p class="text-left">
+            <a href="/download/{{transaction}}">{{transaction}}</a>
+        </p>
+        <label for="transaction">transaction whatsonchain</label>
+        <p class="text-left">
+            <a href="https://api.whatsonchain.com/v1/bsv/test/tx/hash/{{transaction}}">{{transaction}}</a>
+        </p>
+    </div>
+</div>
 {% endblock %}
