@@ -18,13 +18,16 @@
             <h4>Result</h4>
         </div>
         <label for="privatekey_wif">privatekey_wif</label>
-        <p class="text-center">{{privatekey_wif}}</p>
+        <p class="text-left">{{privatekey_wif}}</p>
         <label for="address">address</label>
-        <p class="text-center">
+        <p class="text-left">
             <a href="https://test.whatsonchain.com/address/{{address}}" target="_blank">{{address}}</a>
         </p>
-        <label for="balance">{{balance_satoshi}} satoshis = {{balance_bsv}} tBSV</label>
-        {% end %}
+        <label for="balance">balance</label>
+        <p class="text-left">
+            {{balance_satoshi}} satoshis = {{balance_bsv}} tBSV
+        </p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
