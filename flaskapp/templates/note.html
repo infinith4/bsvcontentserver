@@ -7,12 +7,19 @@
         <div class="pb-2 mt-4 mb-2 border-bottom">
             <h4>Note(testnet)</h4>
         </div>
+        <div>
+            {% if error_msg %}
+            <div class="alert alert-danger" role="alert">
+                {{error_msg}} <a href="#" class="alert-link">show help</a>
+            </div>
+            {% endif %}
+        </div>
         <form method ="post" enctype = "multipart/form-data">
             <div class="form-group">
                 <label for="mnemonic_words">mnemonic_words:</label>
                 <input type="text" name = "mnemonic_words" class="form-control">
                 <label for="message">message:</label>
-                <textarea name = "message" rows="6" cols="40" class="form-control"></textarea>
+                <textarea name = "message" rows="6" cols="40" class="form-control" maxlength="200"></textarea>
                 <input type ="submit" value ="send" class="btn btn-outline-primary">
             </div>
         </form>
