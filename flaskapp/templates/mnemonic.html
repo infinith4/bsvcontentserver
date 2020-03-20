@@ -1,17 +1,30 @@
 {% extends "layout.html" %}
 {% include "header.html" %}
 {% block content %}
-<p class="hello">get privatekey wif</p>
-<form action="/mnemonic" method="POST">
-    <input type="text" name="mnemonic" placeholder="Your mnemonic">
-    <input type="submit" value="post_mnemonic">
-</form>
-<p>privatekey_wif</p>
-<p>{{privatekey_wif}}</p>
-<p>address</p>
-<p>
-    <a href="https://test.whatsonchain.com/address/{{address}}" target="_blank">{{address}}</a>
-</p>
-<p>balance</p>
-<p>{{balance_satoshi}} satoshis = {{balance_bsv}} tBSV</p>
+<div class="form">
+    <div class="container">
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h4>Note(testnet)</h4>
+        </div>
+        <form action="/mnemonic" method="POST" enctype = "multipart/form-data">
+            <div class="form-group">
+                <label for="mnemonic">mnemonic words:</label>
+                <input type="text" name="mnemonic" placeholder="Your mnemonic" class="form-control">
+                <input type="submit" value="post" class="btn btn-outline-primary">
+            </div>
+        </form>
+        {% if privatekey_wif %}
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h4>Result</h4>
+        </div>
+        <label for="privatekey_wif">privatekey_wif</label>
+        <p class="text-center">{{privatekey_wif}}</p>
+        <label for="address">address</label>
+        <p class="text-center">
+            <a href="https://test.whatsonchain.com/address/{{address}}" target="_blank">{{address}}</a>
+        </p>
+        <label for="balance">{{balance_satoshi}} satoshis = {{balance_bsv}} tBSV</label>
+        {% end %}
+    </div>
+</div>
 {% endblock %}
