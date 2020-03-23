@@ -168,6 +168,15 @@ def note(qaddr=''):
         if request.method == "GET":
             ## get bsv text list
             html = render_template('note.html', title="note")
+            if qaddr != '':
+                network_api = bitsv.network.NetworkAPI(network='test')
+                transactions = network_api.get_transactions(qaddr)
+                textdata_list = []
+                for txid in reversed(transactions):
+                    res_get_textdata = get_textdata(txid)
+                    if res_get_textdata != None and res_get_textdata.mimetype == 'text/plain':
+                        textdata_list.append(res_get_textdata.data.decode('utf-8'))
+                html = render_template('note.html', title="note", textdata_list=textdata_list)
             return html
         elif request.method == "POST":
             mnemonic_words = request.form["mnemonic_words"]
