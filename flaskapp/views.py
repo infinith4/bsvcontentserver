@@ -250,7 +250,7 @@ def get_transactions_datalist(txids):
     try:
         url = "https://api.whatsonchain.com/v1/bsv/test/txs"
         headers = {"content-type": "application/json"}
-        json_data = json.dumps({"txids" : ["2a566f32c51227d56ba9bdebe42d9857aeeb50cff074fc553c0d08bc250e0f7c"]]})
+        json_data = json.dumps({"txids" : ["2a566f32c51227d56ba9bdebe42d9857aeeb50cff074fc553c0d08bc250e0f7c"]})
         print(json_data)
 
         r = requests.post(url, json_data, headers=headers)
