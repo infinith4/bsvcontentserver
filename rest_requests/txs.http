@@ -1,0 +1,28 @@
+## https://api.whatsonchain.com/v1/bsv/tx/test/txs
+
+@main_base_url = https://api.whatsonchain.com/v1/bsv/main
+
+
+@test_base_url = https://api.whatsonchain.com/v1/bsv/test
+
+
+# @name whatsonchain_test_txs
+
+POST {{test_base_url}}/txs HTTP/1.1
+Content-Type: application/json
+
+{
+    "txids": ["8fb7d7b8a470d278f321c968667986b3b0fa6f5aa2b2d5a2b3907e138a00d370", "74e902d4b696b6378a000a9a37caa0fdbd58a6391e019cbef1eff5add78493ff"]
+}
+
+
+###
+# @name whatsonchain_main_txs
+
+POST {{main_base_url}}/txs HTTP/1.1
+Content-Type: application/json
+
+{
+    "txids": ["294cd1ebd5689fdee03509f92c32184c0f52f037d4046af250229b97e0c8f1aa","91f68c2c598bc73812dd32d60ab67005eac498bef5f0c45b822b3c9468ba3258"]
+}
+

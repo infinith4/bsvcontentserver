@@ -171,12 +171,11 @@ def note(qaddr=''):
             if qaddr != '':
                 network_api = bitsv.network.NetworkAPI(network='test')
                 transactions = network_api.get_transactions(qaddr)
-                textdata_list = []
-                for txid in reversed(transactions):
-                    res_get_textdata = get_textdata(txid)
-                    if res_get_textdata != None and res_get_textdata.mimetype == 'text/plain':
-                        textdata_list.append(res_get_textdata.data.decode('utf-8'))
-                html = render_template('note.html', title="note", textdata_list=textdata_list)
+                res_get_textdata = []
+                maxcount = 20
+                for i in range(0, len(transactions), maxcount):
+                    res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
+                html = render_template('note.html', title="note", textdata_list=[])
             return html
         elif request.method == "POST":
             mnemonic_words = request.form["mnemonic_words"]
@@ -246,6 +245,43 @@ def note(qaddr=''):
     except Exception as e:
         print(e)
 
+
+def get_transactions_datalist(txids):
+    try:
+        url = "https://api.whatsonchain.com/v1/bsv/test/txs"
+        headers = {"content-type": "application/json"}
+        json_data = json.dumps({"txids" : txids})
+        print(json_data)
+
+        r = requests.post(url, json_data, headers=headers)
+        data = r.json()
+        print(json.dumps(data, indent=4))
+        for i in range(len(data)):
+            op_return = data[i]['vout'][0]['scriptPubKey']['opReturn']
+            upload_data = data[i]['vout'][0]['scriptPubKey']['asm'].split()[3] ##uploaddata (charactor)
+            if op_return != None:
+                upload_mimetype = op_return['parts'][1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
+                upload_charset = op_return['parts'][2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)
+                upload_filename = op_return['parts'][3] ##filename
+                print("upload_mimetype: " + upload_mimetype)
+                print("upload_charset: " + upload_charset)
+                print("upload_filename: " + upload_filename)
+                response = make_response()
+                if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
+                    #print(binascii.hexlify(upload_data))
+                    response.data = binascii.unhexlify(upload_data)
+                elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
+                    response.data = op_return['parts'][0]
+                else:
+                    print('upload_charset' + upload_charset)
+                    response.data = ''
+                downloadFilename = upload_filename
+                response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename
+                response.mimetype = upload_mimetype
+                print(response.data)
+        return response
+    except Exception as e:
+        print(e)
 
 def get_textdata(txid):
     try:
