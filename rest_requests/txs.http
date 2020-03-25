@@ -8,6 +8,7 @@
 
 ## https://api.whatsonchain.com/v1/bsv/test/
 
+### op_return is null
 
 # @name whatsonchain_test_tx_hash
 
@@ -15,7 +16,8 @@ GET {{test_base_url}}/tx/hash/6650d51cf304d6e55033e38293f90c07193de6693b662ccea1
 Content-Type: application/json
 
 
-### 
+### op_return is exist
+
 ## https://api.whatsonchain.com/v1/bsv/test/
 
 # @name whatsonchain_test_tx_hash
@@ -23,6 +25,15 @@ Content-Type: application/json
 GET {{test_base_url}}/tx/hash/2a566f32c51227d56ba9bdebe42d9857aeeb50cff074fc553c0d08bc250e0f7c HTTP/1.1
 Content-Type: application/json
 
+
+###
+
+# @name whatsonchain_test_txs
+
+POST {{test_base_url}}/txs HTTP/1.1
+Content-Type: application/json
+
+{"txids": ["2a566f32c51227d56ba9bdebe42d9857aeeb50cff074fc553c0d08bc250e0f7c"]}
 
 
 
