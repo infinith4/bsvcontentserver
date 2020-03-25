@@ -192,7 +192,7 @@ def note(qaddr=''):
             print(res_get_textdata)
             for item in res_get_textdata:
                 if item is not None:
-                    print(item.data)
+                    print(item)
             # for i in range(0, len(transactions), maxcount):
             #     res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
             html = render_template('note.html', title="note", textdata_list=res_get_textdata)
