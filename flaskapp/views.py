@@ -12,6 +12,7 @@ import polyglot  # pip3 install polyglot-bitcoin
 import requests
 import json
 import datetime
+import time
 
 # import logging
 # logging.basicConfig(filename='example.log',level=logging.DEBUG)
@@ -161,6 +162,8 @@ def allwed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 from io import StringIO
+import multiprocessing
+
 @app.route('/note', defaults={'qaddr': ""}, methods=["GET", "POST"])
 @app.route('/note/<string:qaddr>', methods=["GET", "POST"])
 def note(qaddr=''):
@@ -168,14 +171,31 @@ def note(qaddr=''):
         if request.method == "GET":
             ## get bsv text list
             html = render_template('note.html', title="note")
-            if qaddr != '':
-                network_api = bitsv.network.NetworkAPI(network='test')
-                transactions = network_api.get_transactions(qaddr)
-                res_get_textdata = []
-                maxcount = 20
-                for i in range(0, len(transactions), maxcount):
-                    res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
-                html = render_template('note.html', title="note", textdata_list=[])
+            if qaddr == '':
+                return html
+            network_api = bitsv.network.NetworkAPI(network='test')
+            transactions = network_api.get_transactions(qaddr)
+            res_get_textdata = []
+            maxcount = 20
+
+            for i in range(0, len(transactions), maxcount):
+                txs = transactions[i:maxcount+i]
+                p = multiprocessing.Pool(4) # プロセス数を4に設定
+                result = p.map(get_textdata, txs)  # nijou()に0,1,..,9を与えて並列演算
+                #print(result)
+                for item in result:
+                    print("item")
+                    if item is not None and item.mimetype == "text/plain":
+                        print(item.data)
+                        res_get_textdata.append(item.data)
+
+            print(res_get_textdata)
+            for item in res_get_textdata:
+                if item is not None:
+                    print(item.data)
+            # for i in range(0, len(transactions), maxcount):
+            #     res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
+            html = render_template('note.html', title="note", textdata_list=res_get_textdata)
             return html
         elif request.method == "POST":
             mnemonic_words = request.form["mnemonic_words"]
@@ -239,7 +259,6 @@ def note(qaddr=''):
                 html = render_template('note.html', title="note", error_msg="upload failed")
                 return html
 
-                
             html = render_template('note.html', title="note", uploaded_message=message, textdata_list=textdata_list)
             return html
     except Exception as e:
@@ -265,9 +284,9 @@ def get_transactions_datalist(txids):
                     upload_mimetype = parts[1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
                     upload_charset = parts[2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)
                     upload_filename = parts[3] ##filename
-                    print("upload_mimetype: " + upload_mimetype)
-                    print("upload_charset: " + upload_charset)
-                    print("upload_filename: " + upload_filename)
+                    # print("upload_mimetype: " + upload_mimetype)
+                    # print("upload_charset: " + upload_charset)
+                    # print("upload_filename: " + upload_filename)
                     response = make_response()
                     if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
                         #print(binascii.hexlify(upload_data))
@@ -285,37 +304,48 @@ def get_transactions_datalist(txids):
     except Exception as e:
         print(e)
 
+class ResponseTx:
+	def __init__(self, data, mimetype, charset, filename):
+		self.data = data
+		self.mimetype = mimetype
+		self.charset = charset
+		self.filename = filename
+
 def get_textdata(txid):
     try:
         print("txid")
         print(txid)
+        time.sleep(1)
         if txid != "":
             url = "https://api.whatsonchain.com/v1/bsv/test/tx/hash/" + txid
             headers = {"content-type": "application/json"}
             r = requests.get(url, headers=headers)
             data = r.json()
-            print(json.dumps(data, indent=4))
             op_return = data['vout'][0]['scriptPubKey']['opReturn']
-            upload_data = data['vout'][0]['scriptPubKey']['asm'].split()[3] ##uploaddata (charactor)
+            if op_return is None:
+                return None
+            hex_upload_data = data['vout'][0]['scriptPubKey']['asm'].split()[3] ##uploaddata (charactor)
             upload_mimetype = op_return['parts'][1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
             upload_charset = op_return['parts'][2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)
             upload_filename = op_return['parts'][3] ##filename
-            print("upload_mimetype: " + upload_mimetype)
-            print("upload_charset: " + upload_charset)
-            print("upload_filename: " + upload_filename)
-            response = make_response()
+            # print("upload_mimetype: " + upload_mimetype)
+            # print("upload_charset: " + upload_charset)
+            # print("upload_filename: " + upload_filename)
+            # print("hex_upload_data: " + hex_upload_data)
+            # response = make_response()
             if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
                 #print(binascii.hexlify(upload_data))
-                response.data = binascii.unhexlify(upload_data)
+                upload_data = binascii.unhexlify(hex_upload_data)
             elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
-                response.data = op_return['parts'][0]
+                upload_data = op_return['parts'][0]
             else:
                 print('upload_charset' + upload_charset)
-                response.data = ''
-            downloadFilename = upload_filename
-            response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename
-            response.mimetype = upload_mimetype
-            print(response.data)
-            return response
+                upload_data = ''
+            # downloadFilename = upload_filename
+            # response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename
+            # response.mimetype = upload_mimetype
+            print(upload_data)
+            # return response]
+            return ResponseTx(upload_data, upload_mimetype, upload_charset, upload_filename)
     except Exception as e:
         print(e)
