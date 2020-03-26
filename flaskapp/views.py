@@ -176,23 +176,34 @@ def note(qaddr=''):
             network_api = bitsv.network.NetworkAPI(network='test')
             transactions = network_api.get_transactions(qaddr)
             res_get_textdata = []
-            maxcount = 20
-
-            for i in range(0, len(transactions), maxcount):
-                txs = transactions[i:maxcount+i]
+            initindex = 30
+            maxtakecount = 5
+            #処理前の時刻
+            t1 = time.time()
+            #for i in range(0, len(transactions), maxtakecount):
+            for i in range(initindex, maxtakecount+initindex):
+                txs = transactions[i:maxtakecount+i]
                 p = multiprocessing.Pool(4) # プロセス数を4に設定
-                result = p.map(get_textdata, txs)  # nijou()に0,1,..,9を与えて並列演算
+                result = p.map(get_textdata, txs)
                 #print(result)
                 for item in result:
-                    print("item")
+                    #print("item")
                     if item is not None and item.mimetype == "text/plain":
-                        print(item.data)
+                        #print(item.data)
                         res_get_textdata.append(item.data)
+            print(len(res_get_textdata))
 
-            print(res_get_textdata)
-            for item in res_get_textdata:
-                if item is not None:
-                    print(item)
+            
+            # 処理後の時刻
+            t2 = time.time()
+            
+            # 経過時間を表示
+            elapsed_time = t2-t1
+            print(f"経過時間：{elapsed_time}")
+            # print(res_get_textdata)
+            # for item in res_get_textdata:
+            #     if item is not None:
+            #         print(item)
             # for i in range(0, len(transactions), maxcount):
             #     res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
             html = render_template('note.html', title="note", textdata_list=res_get_textdata)
@@ -315,9 +326,9 @@ class ResponseTx:
 
 def get_textdata(txid):
     try:
-        print("txid")
-        print(txid)
-        time.sleep(1)
+        #print("txid")
+        #print(txid)
+        #time.sleep(0.1)
         if txid != "":
             url = "https://api.whatsonchain.com/v1/bsv/test/tx/hash/" + txid
             headers = {"content-type": "application/json"}
@@ -341,12 +352,12 @@ def get_textdata(txid):
             elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
                 upload_data = op_return['parts'][0]
             else:
-                print('upload_charset' + upload_charset)
+                #print('upload_charset' + upload_charset)
                 upload_data = ''
             # downloadFilename = upload_filename
             # response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename
             # response.mimetype = upload_mimetype
-            print(upload_data)
+            #print(upload_data)
             # return response]
             return ResponseTx(upload_data, upload_mimetype, upload_charset, upload_filename)
     except Exception as e:
