@@ -181,18 +181,17 @@ def note(qaddr=''):
             print(len(transactions))
             #処理前の時刻
             t1 = time.time()
-            #for i in range(0, len(transactions), maxtakecount):
-
-            txs = transactions[startindex:maxtakecount+startindex]
-            print(txs)
-            p = multiprocessing.Pool(6) # プロセス数を6に設定
-            result = p.map(get_textdata, txs)  ## arg must be array
-            #print(result)
-            for item in result:
-                #print("item")
-                if item is not None and item.mimetype == "text/plain":
-                    #print(item.data)
-                    res_get_textdata.append(item.data)
+            for i in range(startindex, len(transactions), maxtakecount):
+                txs = transactions[i:maxtakecount+i]
+                print(txs)
+                p = multiprocessing.Pool(6) # プロセス数を6に設定
+                result = p.map(get_textdata, txs)  ## arg must be array
+                #print(result)
+                for item in result:
+                    #print("item")
+                    if item is not None and item.mimetype == "text/plain":
+                        #print(item.data)
+                        res_get_textdata.append(item.data)
             print(len(res_get_textdata))
 
             
@@ -304,10 +303,10 @@ def get_textdata(txid):
             upload_mimetype = parts[1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
             upload_charset = parts[2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)
             upload_filename = parts[3] ##filename
-            print("upload_mimetype: " + upload_mimetype)
-            print("upload_charset: " + upload_charset)
-            print("upload_filename: " + upload_filename)
-            print("hex_upload_data: " + hex_upload_data)
+            # print("upload_mimetype: " + upload_mimetype)
+            # print("upload_charset: " + upload_charset)
+            # print("upload_filename: " + upload_filename)
+            # print("hex_upload_data: " + hex_upload_data)
             # response = make_response()
             if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
                 #print(binascii.hexlify(upload_data))
