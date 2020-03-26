@@ -279,28 +279,30 @@ def get_transactions_datalist(txids):
             op_return = data[i]['vout'][0]['scriptPubKey']['opReturn']
             upload_data = data[i]['vout'][0]['scriptPubKey']['asm'].split()[3] ##uploaddata (charactor)
             if op_return != None:
-                parts = op_return['parts']
-                if parts != None:
-                    upload_mimetype = parts[1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
-                    upload_charset = parts[2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)
-                    upload_filename = parts[3] ##filename
-                    # print("upload_mimetype: " + upload_mimetype)
-                    # print("upload_charset: " + upload_charset)
-                    # print("upload_filename: " + upload_filename)
-                    response = make_response()
-                    if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
-                        #print(binascii.hexlify(upload_data))
-                        response.data = binascii.unhexlify(upload_data)
-                    elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
-                        response.data = op_return['parts'][0]
-                    else:
-                        print('upload_charset' + upload_charset)
-                        response.data = ''
-                    downloadFilename = upload_filename
-                    response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename
-                    response.mimetype = upload_mimetype
-                    print(response.data)
-        return response
+                textdata = binascii.unhexlify(upload_data)
+                print(textdata)
+                # parts = op_return['parts']
+                # if parts != None:
+                #     upload_mimetype = parts[1] ##MEDIA_Type:  image/png, image/jpeg, text/plain, text/html, text/css, text/javascript, application/pdf, audio/mp3
+                #     upload_charset = parts[2] ##ENCODING: binary, utf-8 (Definition polyglot/upload.py)
+                #     upload_filename = parts[3] ##filename
+                #     print("upload_mimetype: " + upload_mimetype)
+                #     print("upload_charset: " + upload_charset)
+                #     print("upload_filename: " + upload_filename)
+                #     response = make_response()
+                #     if upload_charset == 'binary':  #47f0706cdef805761a975d4af2a418c45580d21d4d653e8410537a3de1b1aa4b
+                #         #print(binascii.hexlify(upload_data))
+                #         response.data = binascii.unhexlify(upload_data)
+                #     elif upload_charset == 'utf-8':  #cc80675a9a64db116c004b79d22756d824b16d485990a7dfdf46d4a183b752b2
+                #         response.data = op_return['parts'][0]
+                #     else:
+                #         print('upload_charset' + upload_charset)
+                #         response.data = ''
+                #     downloadFilename = upload_filename
+                #     response.headers["Content-Disposition"] = 'attachment; filename=' + downloadFilename
+                #     response.mimetype = upload_mimetype
+                #     print(response.data)
+        return None
     except Exception as e:
         print(e)
 
