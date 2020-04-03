@@ -1,0 +1,60 @@
+## https://api.whatsonchain.com/v1/bsv/tx/test/txs
+
+@main_base_url = https://api.whatsonchain.com/v1/bsv/main
+
+
+@test_base_url = https://api.whatsonchain.com/v1/bsv/test
+
+
+## https://api.whatsonchain.com/v1/bsv/test/
+
+### op_return is null
+
+# @name whatsonchain_test_tx_hash
+
+GET {{test_base_url}}/tx/hash/6650d51cf304d6e55033e38293f90c07193de6693b662ccea153f2df536362ff HTTP/1.1
+Content-Type: application/json
+
+
+### op_return is exist
+
+## https://api.whatsonchain.com/v1/bsv/test/
+
+# @name whatsonchain_test_tx_hash
+
+GET {{test_base_url}}/tx/hash/2a566f32c51227d56ba9bdebe42d9857aeeb50cff074fc553c0d08bc250e0f7c HTTP/1.1
+Content-Type: application/json
+
+
+###
+
+# @name whatsonchain_test_txs
+
+POST {{test_base_url}}/txs HTTP/1.1
+Content-Type: application/json
+
+{"txids": ["2a566f32c51227d56ba9bdebe42d9857aeeb50cff074fc553c0d08bc250e0f7c"]}
+
+
+
+
+###
+
+# @name whatsonchain_test_txs
+
+POST {{test_base_url}}/txs HTTP/1.1
+Content-Type: application/json
+
+{"txids": ["6650d51cf304d6e55033e38293f90c07193de6693b662ccea153f2df536362ff", "bcb2a546b6ccc6ef5316c520cd2d7a0fbc31645cadad357a01bc1b16af3a730e", "877fe78fed1e1937fd98ec2db33ed2d14fbd7a43257ab02cf75f1f14feb3a6af", "1b9b755d3f382e32ba8eb6ae594a67b309031ad784057a6aafe05faef7bd0f68", "82a10318168f088ec58b27edf0e65447e131a6186c022b5d3ab699dd45547a38", "f9fc4106f1b5278e868ec2e0e2ea037c599e93763249dc885778df85c982a23a", "6dbed8336a948e79756fc9bb36920a69c080d32cdd503dd1ce394a0e57b04580", "c28f648ba9706ff90bfd196ce3153a4f7416808f04efe0bdfa49c4a404b954b1", "cec4d41e233c9ec82bd572ea734f72e0b2359fd7d7101b36034b7ec79a233303", "eb8612f868daf61d524e05319f1cb8a56dd137b862682eeb93fbaa91ba3a10a6", "241401ed0a8962e3b1d25a2a3572eee54f1eef9a94132cc13a485e92ab9bb781", "aadaaa9a795e67fe528553458cc35f9b38e6b50a02a8469764725c33a6a2395a", "c225138392e5da8fc19f6a21f5ffc2f195d3c8d6a5f772c4babc378b351d660b", "4f5c8ba2b521204380836c49d85bfbb769bdc1a4381b47130ceacc0ece004b93", "d3fff55846b10b7839223e948c46a87f3d3a088ea2304bf59f95c2f6640c37e9", "8570451711ab43ff9a05f657544eb2be74ce1542606ea69d244554a5fd398b4e", "928fef79396292bae22dca8ac1a4094f7bbde36fb943c1a56acbcc83ac283c0c", "69305e94df72875ef9a59802f1bafd7c012a7d8eae636c84e503defd3e69bfaf", "d9a3baed39ab4d1f32d0aa3d5ed16b8c12b093ed6e95f08f7ff6f06ff65a90a6", "857eb0bab047be71ec1e1c6811fc67914bec40947110cb5afbae71eb5d69d354"]}
+
+
+###
+# @name whatsonchain_main_txs
+
+POST {{main_base_url}}/txs HTTP/1.1
+Content-Type: application/json
+
+{
+    "txids": ["294cd1ebd5689fdee03509f92c32184c0f52f037d4046af250229b97e0c8f1aa","91f68c2c598bc73812dd32d60ab67005eac498bef5f0c45b822b3c9468ba3258"]
+}
+

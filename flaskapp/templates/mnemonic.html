@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% include "header.html" %}
+{% block content %}
+<div class="form">
+    <div class="container">
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h4>Note(testnet)</h4>
+        </div>
+        <form action="/mnemonic" method="POST" enctype = "multipart/form-data">
+            <div class="form-group">
+                <label for="mnemonic">mnemonic words:</label>
+                <input type="text" name="mnemonic" placeholder="Your mnemonic" class="form-control">
+                <input type="submit" value="post" class="float-right mt-2 btn btn-outline-primary">
+            </div>
+        </form>
+    </div>
+    <div class="container">
+        {% if privatekey_wif %}
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h4>Result</h4>
+        </div>
+        <label for="privatekey_wif">privatekey_wif</label>
+        <p class="text-left">{{privatekey_wif}}</p>
+        <label for="address">address</label>
+        <p class="text-left">
+            <a href="https://test.whatsonchain.com/address/{{address}}" target="_blank">{{address}}</a>
+        </p>
+        <label for="balance">balance</label>
+        <p class="text-left">
+            {{balance_satoshi}} satoshis = {{balance_bsv}} tBSV
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
