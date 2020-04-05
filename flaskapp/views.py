@@ -176,14 +176,19 @@ def note(qaddr=''):
                 return html
             network_api = bitsv.network.NetworkAPI(network='test')
             transactions = network_api.get_transactions(qaddr)
+            trans_list = []
+            transaction_list = mongo.db.transaction.find()
+            for item in transaction_list:
+                print(item["txid"])
+                trans_list.append(item["txid"])
             res_get_textdata = []
             startindex = 0
             maxtakecount = 40  ##5 items
             print(len(transactions))
             #処理前の時刻
             t1 = time.time()
-            for i in range(startindex, len(transactions), maxtakecount):
-                txs = transactions[i:maxtakecount+i]
+            for i in range(startindex, len(trans_list), maxtakecount):
+                txs = trans_list[i:maxtakecount+i]
                 print(txs)
                 p = multiprocessing.Pool(6) # プロセス数を6に設定
                 result = p.map(get_textdata, txs)  ## arg must be array
