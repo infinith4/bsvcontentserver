@@ -22,6 +22,7 @@ pip3 install base58
 pip3 install bitsv
 pip3 install polyglot-bitcoin
 pip3 install numpy
+pip3 install flask-pymongo
 
 pip3 freeze | grep -v "pkg-resources" > requirements.txt
 
@@ -110,5 +111,24 @@ pip3 install git+https://github.com/AustEcon/bsvbip32
 private key testnet
 
 \x04\x35\x83\x94
+
+
+### mongodb
+
+https://cloud.mongodb.com/v2/5e883d9adf26162d6e9c774d#clusters/connect?clusterId=Cluster0
+
+
+
+```
+mongo "mongodb+srv://cluster0-mmmko.mongodb.net/test"  --username [username]
+
+```
+
+
+```
+from flask_pymongo import PyMongo
+
+```
+
 
 

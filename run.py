@@ -3,6 +3,8 @@ import logging
 from logging.config import dictConfig
 import yaml
 
+from flask_pymongo import PyMongo
+
 
 if __name__ == '__main__':
 
@@ -10,6 +12,11 @@ if __name__ == '__main__':
         conf_file = yaml.safe_load(f.read()) # yaml.loadは使わない（脆弱性アリ）
 
         logging.config.dictConfig(conf_file) # 設定の完了
+
+    app = Flask(__name__)
+    app.config["MONGO_URI"] = "mongodb+srv://bsvcontentserver:pallallp5@cluster0-mmmko.mongodb.net/test?retryWrites=true&w=majority"
+    mongo = PyMongo(app)
+    print(mongo)
     #logging.config.fileConfig("log_config.yaml")
     # Threaded option to enable multiple instances for multiple user access support
     app.run(debug=True, threaded=True, port=5001)

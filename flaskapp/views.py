@@ -1,4 +1,4 @@
-from flaskapp import app
+from flaskapp import app, mongo, bootstrap
 from flask import request, redirect, url_for, render_template, flash, make_response
 import requests
 import json
@@ -23,6 +23,7 @@ def index():
     #logger.error("warn test")
     app.logger.debug('debug test')
     app.logger.info('info failed to log in')
+
     html = render_template('index.html', title="Home")
     return html
 
@@ -177,7 +178,7 @@ def note(qaddr=''):
             transactions = network_api.get_transactions(qaddr)
             res_get_textdata = []
             startindex = 0
-            maxtakecount = 20  ##5 items
+            maxtakecount = 40  ##5 items
             print(len(transactions))
             #処理前の時刻
             t1 = time.time()
@@ -191,6 +192,7 @@ def note(qaddr=''):
                     #print("item")
                     if item is not None and item.mimetype == "text/plain":
                         #print(item.data)
+                        mongo.db.transaction.insert({"txid": item.txid})
                         res_get_textdata.append(item.data)
             print(len(res_get_textdata))
 
@@ -277,7 +279,8 @@ def note(qaddr=''):
         print(e)
 
 class ResponseTx:
-	def __init__(self, data, mimetype, charset, filename):
+	def __init__(self, txid, data, mimetype, charset, filename):
+		self.txid = txid
 		self.data = data
 		self.mimetype = mimetype
 		self.charset = charset
@@ -321,7 +324,7 @@ def get_textdata(txid):
             # response.mimetype = upload_mimetype
             #print(upload_data)
             # return response]
-            return ResponseTx(upload_data, upload_mimetype, upload_charset, upload_filename)
+            return ResponseTx(txid, upload_data, upload_mimetype, upload_charset, upload_filename)
     except Exception as e:
         print(e)
 
