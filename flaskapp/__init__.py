@@ -25,7 +25,7 @@ bootstrap = Bootstrap(app)
 from flask_pymongo import PyMongo
 import dns
 
-app.config["MONGO_URI"] = "mongodb+srv://bsvcontentserver:pallallp5@cluster0-mmmko.mongodb.net/test?retryWrites=true&w=majority"
+app.config["MONGO_URI"] = "mongodb+srv://bsvcontentserver:pass@cluster0-mmmko.mongodb.net/test?retryWrites=true&w=majority"
 ## https://github.com/mongodb/mongo-python-driver/commit/62400e548db8e02e82afa77b9014d21e47ed2f7c
 ## query() got an unexpected keyword argument 'lifetime'
 ## pip3 install dnspython==1.16.0
