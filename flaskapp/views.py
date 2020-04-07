@@ -176,12 +176,12 @@ def note(qaddr=''):
                 return html
             trans_list = []
             transaction_list = mongo.db.transaction.find()
-            for item in transaction_list:
-                print(item["txid"])
-                trans_list.append(item["txid"])
-            res_get_textdata = []
             startindex = 0
             maxtakecount = 5  ##5 items
+            if transaction_list.count() > 0:
+                for i in range(startindex, maxtakecount):
+                    trans_list.append(transaction_list[i]["txid"])
+            res_get_textdata = []
 
             #処理前の時刻
             t1 = time.time()
