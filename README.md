@@ -4,6 +4,7 @@ https://bsvstorserver.herokuapp.com
 
 
 ```
+sudo apt install python3.7
 sudo apt-get install python3-venv
 sudo apt-get install pylint
 
@@ -117,6 +118,8 @@ private key testnet
 
 https://cloud.mongodb.com/v2/5e883d9adf26162d6e9c774d#clusters/connect?clusterId=Cluster0
 
+
+https://cloud.mongodb.com/v2/5e8a9ff9457adb4794eb8c6c
 
 
 ```
