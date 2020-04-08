@@ -20,7 +20,6 @@ class Bip39Mnemonic(object):
         else:
             raise ValueError("Your Bip32_Node is not derived from an xprv")
 
-
     @classmethod
     def b58encode(self, v):
         alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
