@@ -397,13 +397,21 @@ def get_transactions_datalist(txids):
 #     print("start_index:%s;cnt: %s" % (start_index, cnt))
 #     return 0
 
+# http://127.0.0.1:5000/api/tx/mnoTQaiqDBjUG6WWAUwhFycirbrKYUMgmU?start_index=3&cnt=5
 @app.route('/api/tx', defaults={'addr': ''}, methods=["GET"])
 @app.route('/api/tx/<string:addr>', methods=["GET"])
 def get_tx(addr = ''):
     try:
-        start_index = request.args.get('start_index')
-        cnt = request.args.get('cnt')
+        start_index = int(request.args.get('start_index'))
+        cnt = int(request.args.get('cnt'))
         print("addr: %s; start_index:%s;cnt: %s" % (addr, start_index, cnt))
+        # search mongodb transaction records from start_index to cnt.
+        trans_list = []
+        transaction_list = mongo.db.transaction.find()
+        if transaction_list.count() > 0:
+            for i in range(start_index, start_index + cnt):
+                trans_list.append(transaction_list[i]["txid"])
+        print(trans_list)
         return ""
     except Exception as e:
         print(e)
