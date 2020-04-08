@@ -390,3 +390,21 @@ def get_transactions_datalist(txids):
         return None
     except Exception as e:
         print(e)
+
+# @app.route('/api/tx', defaults={'start_index': 0, 'cnt': 5}, methods=["GET"])
+# @app.route('/api/tx?start_index=<int:start_index>&cnt=<int:cnt>', methods=["GET"])
+# def get_tx(start_index = 0, cnt = 5):
+#     print("start_index:%s;cnt: %s" % (start_index, cnt))
+#     return 0
+
+@app.route('/api/tx', defaults={'addr': ''}, methods=["GET"])
+@app.route('/api/tx/<string:addr>', methods=["GET"])
+def get_tx(addr = ''):
+    try:
+        start_index = request.args.get('start_index')
+        cnt = request.args.get('cnt')
+        print("addr: %s; start_index:%s;cnt: %s" % (addr, start_index, cnt))
+        return ""
+    except Exception as e:
+        print(e)
+        return ""
