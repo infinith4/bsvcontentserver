@@ -2,11 +2,36 @@
 {% include "header.html" %}
 
 {% block content %}
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  <script>
+    $(function(){
+        var transaction_count_str = $('input#transaction_count').val()
+        var transaction_count = parseInt(transaction_count_str)
+        var percnt = 5
+        for (var i = 0; i < transaction_count; i = i + percnt) {
+            $.ajax({
+            type: "GET",
+            url: "/api/tx/mnoTQaiqDBjUG6WWAUwhFycirbrKYUMgmU?start_index=" + i + "&cnt=" + percnt,
+            dataType: "json",
+            success: function(jsondata){
+                $.each( jsondata['textdata_list'], function( index, value ) {
+                    content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + index + '"><p class="text-left">' + value + '</p></div>';
+                    $('.textdata_list').append(content);
+                });
+            }
+            });
+        }
+    });
+  </script>
 <div class="form">
     <div class="container">
         <div class="pb-2 mt-4 mb-2 border-bottom">
             <h4>Note(testnet)</h4>
         </div>
+        <input id="transaction_count" type='text' value='{{transaction_count}}'>
         <div>
             {% if error_msg %}
             <div class="alert alert-danger" role="alert">
@@ -41,6 +66,7 @@
             </p>
         </div>
         {% endfor %}
+        <div class="textdata_list"></div>
     </div>
 </div>
 {% endblock %}

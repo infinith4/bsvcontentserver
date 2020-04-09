@@ -1,5 +1,5 @@
 from flaskapp import app, mongo, bootstrap
-from flask import request, redirect, url_for, render_template, flash, make_response
+from flask import request, redirect, url_for, render_template, flash, make_response, jsonify
 import requests
 import json
 import binascii
@@ -228,7 +228,7 @@ def note(qaddr=''):
             #         print(item)
             # for i in range(0, len(transactions), maxcount):
             #     res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
-            html = render_template('note.html', title="note", textdata_list=res_get_textdata)
+            html = render_template('note.html', title="note", textdata_list=res_get_textdata, transaction_count = transaction_list.count())
             return html
         elif request.method == "POST":
             mnemonic_words = request.form["mnemonic_words"]
@@ -292,7 +292,7 @@ def note(qaddr=''):
                 html = render_template('note.html', title="note", error_msg="upload failed")
                 return html
 
-            html = render_template('note.html', title="note", uploaded_message=message, textdata_list=textdata_list)
+            html = render_template('note.html', title="note", uploaded_message=message, textdata_list=textdata_list, transaction_count = transaction_list.count())
             return html
     except Exception as e:
         print(e)
@@ -365,15 +365,15 @@ def get_tx(addr = ''):
         res_get_textdata = []
         print(trans_list)
         if len(trans_list) > 0:
-            txs = trans_list[i:len(trans_list)-1]
-            print(txs)
+            print(trans_list)
             p = multiprocessing.Pool(6) # プロセス数を6に設定
-            result = p.map(WhatsOnChainLib.get_textdata, txs)  ## arg must be array
+            result = p.map(WhatsOnChainLib.get_textdata, trans_list)  ## arg must be array
 
             for item in result:
                 if item is not None and item.mimetype == "text/plain":
                     res_get_textdata.append(item.data)
-        return ""
+        print(res_get_textdata)
+        return jsonify({ 'textdata_list': res_get_textdata }), 200
     except Exception as e:
         print(e)
         return ""
