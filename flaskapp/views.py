@@ -240,7 +240,7 @@ def note(qaddr=''):
 
             textdata_list = []
             for txid in reversed(transactions):
-                res_get_textdata = get_textdata(txid)
+                res_get_textdata = WhatsOnChainLib.get_textdata(txid)
                 if res_get_textdata != None and res_get_textdata.mimetype == 'text/plain':
                     textdata_list.append(res_get_textdata.data.decode('utf-8'))
             print("textdata_list")
@@ -339,19 +339,21 @@ def get_transactions_datalist(txids):
     except Exception as e:
         print(e)
 
-# @app.route('/api/tx', defaults={'start_index': 0, 'cnt': 5}, methods=["GET"])
-# @app.route('/api/tx?start_index=<int:start_index>&cnt=<int:cnt>', methods=["GET"])
-# def get_tx(start_index = 0, cnt = 5):
-#     print("start_index:%s;cnt: %s" % (start_index, cnt))
-#     return 0
-
 # http://127.0.0.1:5000/api/tx/mnoTQaiqDBjUG6WWAUwhFycirbrKYUMgmU?start_index=3&cnt=5
 @app.route('/api/tx', defaults={'addr': ''}, methods=["GET"])
 @app.route('/api/tx/<string:addr>', methods=["GET"])
 def get_tx(addr = ''):
     try:
-        start_index = int(request.args.get('start_index'))
-        cnt = int(request.args.get('cnt'))
+        start_index_str = request.args.get('start_index')
+        if start_index_str == "":
+            start_index = 0
+        else: 
+            start_index = int(start_index_str)
+        cnt_str = request.args.get('cnt')
+        if cnt_str == "":
+            cnt = 5
+        else:
+            cnt = int(cnt_str)
         print("addr: %s; start_index:%s;cnt: %s" % (addr, start_index, cnt))
         # search mongodb transaction records from start_index to cnt.
         trans_list = []
@@ -359,7 +361,18 @@ def get_tx(addr = ''):
         if transaction_list.count() > 0:
             for i in range(start_index, start_index + cnt):
                 trans_list.append(transaction_list[i]["txid"])
+
+        res_get_textdata = []
         print(trans_list)
+        if len(trans_list) > 0:
+            txs = trans_list[i:len(trans_list)-1]
+            print(txs)
+            p = multiprocessing.Pool(6) # プロセス数を6に設定
+            result = p.map(WhatsOnChainLib.get_textdata, txs)  ## arg must be array
+
+            for item in result:
+                if item is not None and item.mimetype == "text/plain":
+                    res_get_textdata.append(item.data)
         return ""
     except Exception as e:
         print(e)
