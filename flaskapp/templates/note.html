@@ -8,13 +8,14 @@
   crossorigin="anonymous"></script>
   <script>
     $(function(){
+        var address = $('#address').text()
         var transaction_count_str = $('input#transaction_count').val()
         var transaction_count = parseInt(transaction_count_str)
         var percnt = 5
         for (var i = 0; i < transaction_count; i = i + percnt) {
             $.ajax({
             type: "GET",
-            url: "/api/tx/mnoTQaiqDBjUG6WWAUwhFycirbrKYUMgmU?start_index=" + i + "&cnt=" + percnt,
+            url: "/api/tx/" + address + "?start_index=" + i + "&cnt=" + percnt,
             dataType: "json",
             success: function(jsondata){
                 $.each( jsondata['textdata_list'], function( index, value ) {
@@ -31,7 +32,8 @@
         <div class="pb-2 mt-4 mb-2 border-bottom">
             <h4>Note(testnet)</h4>
         </div>
-        <input id="transaction_count" type='text' value='{{transaction_count}}'>
+        <label id="address">{{address}}</label>
+        <input id="transaction_count" type='text' value='{{transaction_count}}' />
         <div>
             {% if error_msg %}
             <div class="alert alert-danger" role="alert">

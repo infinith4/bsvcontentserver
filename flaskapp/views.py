@@ -177,7 +177,7 @@ def note(qaddr=''):
             if qaddr == '':
                 return html
             trans_list = []
-            transaction_list = mongo.db.transaction.find()
+            transaction_list = mongo.db.transaction.find({'address': qaddr })
             startindex = 0
             maxtakecount = 5  ##5 items
             if transaction_list.count() > 0:
@@ -228,7 +228,7 @@ def note(qaddr=''):
             #         print(item)
             # for i in range(0, len(transactions), maxcount):
             #     res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
-            html = render_template('note.html', title="note", textdata_list=res_get_textdata, transaction_count = transaction_list.count())
+            html = render_template('note.html', title="note", address = qaddr, textdata_list=res_get_textdata, transaction_count = transaction_list.count())
             return html
         elif request.method == "POST":
             mnemonic_words = request.form["mnemonic_words"]
