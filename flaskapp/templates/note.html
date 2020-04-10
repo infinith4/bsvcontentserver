@@ -12,19 +12,61 @@
         var transaction_count_str = $('input#transaction_count').val()
         var transaction_count = parseInt(transaction_count_str)
         var percnt = 5
-        for (var i = 0; i < transaction_count; i = i + percnt) {
-            $.ajax({
-            type: "GET",
-            url: "/api/tx/" + address + "?start_index=" + i + "&cnt=" + percnt,
-            dataType: "json",
-            success: function(jsondata){
-                $.each( jsondata['textdata_list'], function( index, value ) {
-                    content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + index + '"><p class="text-left">' + value + '</p></div>';
-                    $('.textdata_list').append(content);
+        var current_transaction_index = 0;
+
+        var slide = $('#slide');
+        var contents = $('#slide-contents');
+        //開くボタン
+        var openBtn = $('#open-btn img');
+        var btnOpenFlug = false;
+        var openFlug = false;
+        var panelSwitch = function() {
+            //閉じる
+            if (openFlug == true ) {
+                slide.stop().animate({'width' : '200px','height' : '30px'}, 500); 
+                openBtn.show();		//開くボタンにする
+                $.ajax({
+                    type: "GET",
+                    url: "/api/tx/" + address + "?start_index=" + current_transaction_index + "&cnt=" + percnt,
+                    dataType: "json",
+                    success: function(jsondata){
+                        $.each( jsondata['textdata_list'], function( index, value ) {
+                            content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + current_transaction_index + '"><p class="text-left">' + value + '</p></div>';
+                            $('.textdata_list').append(content);
+                            current_transaction_index += index + 1
+                        });
+                    }
                 });
             }
-            });
-        }
+            //開く
+            else if (openFlug == false) {
+                slide.stop().animate({'width' : '400px','height' : '200px'}, 500); 
+                openBtn.hide();		//閉じるボタンにする
+            }
+        };
+        //開くボタンクリックしたら
+        $('#open-btn').click(function(){
+            panelSwitch();
+            openFlug = !openFlug;
+            btnOpenFlug = true;
+        });
+        //画面下位置を取得
+        var bottomPos = $(document).height() - $(window).height() - 500;
+        $(window).scroll(function () {
+            if (!btnOpenFlug) {
+                if ($(this).scrollTop() >= bottomPos) {
+                    if (openFlug == false) {
+                        panelSwitch();
+                        openFlug = true;
+                    }
+                } else {
+                    if (openFlug) {
+                        panelSwitch();
+                        openFlug = false;
+                    }
+                }
+            }
+        });
     });
   </script>
 <div class="form">
@@ -69,6 +111,15 @@
         </div>
         {% endfor %}
         <div class="textdata_list"></div>
+        <div id="slide" style="width: 400px; height: 200px;">
+            <div id="slide-in">
+                <div id="open-btn"><img src="img/open-btn.gif" width="20" height="20" style="display: none;"></div>
+                <h3>開くかも</h3>
+                <div id="slide-contents">
+                    <p>これは開くかもしれない。開きましたか？</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
