@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tys-hiroshi/bsvcontentserver.svg?branch=develop)](https://travis-ci.org/tys-hiroshi/bsvcontentserver)
+
 ### heroku app
 
 https://bsvstorserver.herokuapp.com
