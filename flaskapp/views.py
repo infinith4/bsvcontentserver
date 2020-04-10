@@ -344,6 +344,7 @@ def get_transactions_datalist(txids):
 @app.route('/api/tx/<string:addr>', methods=["GET"])
 def get_tx(addr = ''):
     try:
+        app.logger.info("start /api/tx")
         start_index_str = request.args.get('start_index')
         if start_index_str == "":
             start_index = 0
@@ -359,7 +360,10 @@ def get_tx(addr = ''):
         trans_list = []
         transaction_list = mongo.db.transaction.find()
         if transaction_list.count() > 0:
-            for i in range(start_index, start_index + cnt):
+            maxcount = transaction_list.count()
+            if start_index + cnt <= transaction_list.count():
+                maxcount = start_index + cnt
+            for i in range(start_index, maxcount):
                 trans_list.append(transaction_list[i]["txid"])
 
         res_get_textdata = []
@@ -376,4 +380,4 @@ def get_tx(addr = ''):
         return jsonify({ 'textdata_list': res_get_textdata }), 200
     except Exception as e:
         print(e)
-        return ""
+        return "", 500

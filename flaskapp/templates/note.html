@@ -14,59 +14,40 @@
         var percnt = 5
         var current_transaction_index = 0;
 
-        var slide = $('#slide');
-        var contents = $('#slide-contents');
-        //開くボタン
-        var openBtn = $('#open-btn img');
-        var btnOpenFlug = false;
-        var openFlug = false;
-        var panelSwitch = function() {
-            //閉じる
-            if (openFlug == true ) {
-                slide.stop().animate({'width' : '200px','height' : '30px'}, 500); 
-                openBtn.show();		//開くボタンにする
-                $.ajax({
-                    type: "GET",
-                    url: "/api/tx/" + address + "?start_index=" + current_transaction_index + "&cnt=" + percnt,
-                    dataType: "json",
-                    success: function(jsondata){
+        var offset_bottomMenu = $('.bottomMenu').offset();
+        var request_current_transaction_index_list = [];
+        $(document).scroll(function() {
+            //$(window).height() - $(".bottomMenu")
+            var scrollTop = $(this).scrollTop()
+            var diff_bottom_content = offset_bottomMenu.top - window.innerHeight
+            if (diff_bottom_content <= scrollTop) {
+                $('.bottomMenu').css('visibility', 'visible');
+                if($.inArray(current_transaction_index, request_current_transaction_index_list) == -1) {
+                    request_current_transaction_index_list.push(current_transaction_index);
+                    requestApiTx(current_transaction_index, percnt).done(function(jsondata) {
                         $.each( jsondata['textdata_list'], function( index, value ) {
-                            content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + current_transaction_index + '"><p class="text-left">' + value + '</p></div>';
-                            $('.textdata_list').append(content);
-                            current_transaction_index += index + 1
-                        });
-                    }
-                });
-            }
-            //開く
-            else if (openFlug == false) {
-                slide.stop().animate({'width' : '400px','height' : '200px'}, 500); 
-                openBtn.hide();		//閉じるボタンにする
-            }
-        };
-        //開くボタンクリックしたら
-        $('#open-btn').click(function(){
-            panelSwitch();
-            openFlug = !openFlug;
-            btnOpenFlug = true;
-        });
-        //画面下位置を取得
-        var bottomPos = $(document).height() - $(window).height() - 500;
-        $(window).scroll(function () {
-            if (!btnOpenFlug) {
-                if ($(this).scrollTop() >= bottomPos) {
-                    if (openFlug == false) {
-                        panelSwitch();
-                        openFlug = true;
-                    }
-                } else {
-                    if (openFlug) {
-                        panelSwitch();
-                        openFlug = false;
-                    }
+                                content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + current_transaction_index + '"><p class="text-left">' + value + '</p></div>';
+                                $('.textdata_list').append(content);
+                                current_transaction_index += 1
+                            });
+                        console.log(current_transaction_index);
+                    }).fail(function(jsondata) {
+                        console.log("error");
+                    });
                 }
+                offset_bottomMenu = $('.bottomMenu').offset();
+            } else {
+                $('.bottomMenu').css('visibility', 'hidden');
             }
         });
+
+        var requestApiTx = function(current_transaction_index, percnt){
+            return $.ajax({
+                type: "GET",
+                url: "/api/tx/" + address + "?start_index=" + current_transaction_index + "&cnt=" + percnt,
+                dataType: "json",
+            });
+        };
     });
   </script>
 <div class="form">
@@ -103,23 +84,15 @@
                 {{uploaded_message}}
             </p>
         </div>
-        {% for item in textdata_list %}
+        <!-- {% for item in textdata_list %}
         <div class="mt-1 mb-1 border-bottom">
             <p class="text-left">
                 {{item}}
             </p>
         </div>
-        {% endfor %}
+        {% endfor %} -->
         <div class="textdata_list"></div>
-        <div id="slide" style="width: 400px; height: 200px;">
-            <div id="slide-in">
-                <div id="open-btn"><img src="img/open-btn.gif" width="20" height="20" style="display: none;"></div>
-                <h3>開くかも</h3>
-                <div id="slide-contents">
-                    <p>これは開くかもしれない。開きましたか？</p>
-                </div>
-            </div>
-        </div>
+        <div class='bottomMenu' style="width: 1px; height: 100px;visibility:hidden;"></div>
     </div>
 </div>
 {% endblock %}

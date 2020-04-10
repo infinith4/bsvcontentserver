@@ -4,7 +4,7 @@ from logging.config import dictConfig
 import yaml
 
 from flask_pymongo import PyMongo
-
+from flask import Flask
 
 if __name__ == '__main__':
 
