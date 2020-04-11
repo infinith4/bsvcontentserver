@@ -415,6 +415,7 @@ def add_address():
         record_address = mongo.db.address.find({"address": address})
         if record_address.count() == 0:
             mongo.db.address.insert({"address": address})
+        return jsonify(res="ok"), 200
     except Exception as e:
         app.logger.error(e)
         print(e)
