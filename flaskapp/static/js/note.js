@@ -42,10 +42,9 @@ $(function(){
         var message = $("textarea[name='message']").val();
         requestApiUploadText(mnemonic_words, message)
         .done(function(jsondata, textStatus){
-                console.log("done");
-                console.log(jsondata);
                 content = '<div class="mt-1 mb-1 border-bottom"><p class="text-left">' + message + '</p></div>';
                 $('.upload_textdata_list').prepend(content);
+                $("input[name='mnemonic_words']").val("");
               })
         .fail(function(jqXHR, textStatus, errorThrown){
                 console.log("failed");

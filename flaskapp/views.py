@@ -402,3 +402,20 @@ def upload_text():
     except Exception as e:
         print(e)
         return "", 500
+
+@app.route('/api/add_address', methods=["POST"])
+def add_address():
+    try:
+        if request.headers['Content-Type'] != 'application/json':
+            print(request.headers['Content-Type'])
+            return jsonify(res='error'), 400
+        address = request.json['address']
+        if address == None or address == "":
+            return jsonify(res = 'ng'), 400
+        record_address = mongo.db.address.find({"address": address})
+        if record_address.count() == 0:
+            mongo.db.address.insert({"address": address})
+    except Exception as e:
+        app.logger.error(e)
+        print(e)
+        return jsonify(res = 'ng'), 500

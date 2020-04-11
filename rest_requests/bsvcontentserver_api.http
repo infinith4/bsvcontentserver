@@ -1,0 +1,19 @@
+## bsvcontentserver api
+
+@base_url = http://127.0.0.1:5000
+
+@address = mndvRsa9eyFDpyuUk5bnXwSyrDEZNhq138
+
+### op_return is null
+
+# @name api_add_address
+
+POST {{base_url}}/api/add_address HTTP/1.1
+Content-Type: application/json
+
+{
+    "address": "mndvRsa9eyFDpyuUk5bnXwSyrDEZNhq138"
+}
+
+
+
