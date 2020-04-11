@@ -137,3 +137,4 @@ from flask_pymongo import PyMongo
 
 
 
+heroku config:set FLASK_CONFIG_FILE="/app/config.py" --app "bsvcontent"
