@@ -1,4 +1,5 @@
 from flaskapp import app, mongo, bootstrap
+from pymongo import DESCENDING, ASCENDING
 from flask import request, redirect, url_for, render_template, flash, make_response, jsonify
 import requests
 import json
@@ -177,7 +178,7 @@ def note(qaddr=''):
             if qaddr == '':
                 return html
             trans_list = []
-            transaction_list = mongo.db.transaction.find({'address': qaddr })
+            transaction_list = mongo.db.transaction.find(filter={'address': qaddr }, sort=[("_id",DESCENDING)])
             startindex = 0
             maxtakecount = 5  ##5 items
             if transaction_list.count() > 0:
@@ -211,7 +212,7 @@ def note(qaddr=''):
                         #print("item")
                         if item is not None and item.mimetype == "text/plain":
                             #print(item.data)
-                            mongo.db.transaction.insert({"txid": item.txid})
+                            mongo.db.transaction.insert({"address": qaddr, "txid": item.txid})
                             res_get_textdata.append(item.data)
             print(len(res_get_textdata))
 
@@ -222,7 +223,7 @@ def note(qaddr=''):
             # 経過時間を表示
             elapsed_time = t2-t1
             print(f"経過時間：{elapsed_time}")
-            # print(res_get_textdata)
+            print(res_get_textdata)
             # for item in res_get_textdata:
             #     if item is not None:
             #         print(item)
@@ -234,32 +235,12 @@ def note(qaddr=''):
             mnemonic_words = request.form["mnemonic_words"]
             bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
             privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif, network = 'test')
-            transactions = privateKey.get_transactions()
-            print("transactions")
-            print(transactions)
-
-            textdata_list = []
-            for txid in reversed(transactions):
-                res_get_textdata = WhatsOnChainLib.get_textdata(txid)
-                if res_get_textdata != None and res_get_textdata.mimetype == 'text/plain':
-                    textdata_list.append(res_get_textdata.data.decode('utf-8'))
-            print("textdata_list")
-            print(textdata_list)
-
 
             message = request.form["message"]
-            bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
-            #stream = StringIO(message)
-            #stream = message.stream
 
             encoding = "utf-8"
             print("bip39Mnemonic.privatekey_wif")
             print(bip39Mnemonic.privatekey_wif)
-            uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
-            #req_file_bytearray = bytearray()
-            #req_file_bytearray.extend(map(ord, message))
-            #req_file_bytearray = bytearray(stream.read())
-            #print(req_file_bytearray)
             message_bytes = message.encode(encoding)
             message_bytes_length = len(message_bytes)
             print(message_bytes_length)
@@ -273,26 +254,23 @@ def note(qaddr=''):
             print(media_type)
             print(encoding)
             file_name = format(datetime.date.today(), '%Y%m%d')
+            #upload data
+            uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
             print(uploader.filter_utxos_for_bcat())
             rawtx = uploader.b_create_rawtx_from_binary(req_bytearray, media_type, encoding, file_name)
             txid = uploader.send_rawtx(rawtx)
+            mongo.db.transaction.insert({"address": privateKey.address, "txid": txid})
             #transaction = uploader.upload_b(filepath)
             #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
             print("upload txid")
             print(txid)
-            # アップロード後のページに転送
-            # html = render_template(
-            #     'uploaded.html', 
-            #     transaction = txid, 
-            #     #privatekey_wif = bip39Mnemonic.privatekey_wif,
-            #     title="mnemonic")
 
             # return html
             if txid == "":
                 html = render_template('note.html', title="note", error_msg="upload failed")
                 return html
 
-            html = render_template('note.html', title="note", uploaded_message=message, textdata_list=textdata_list, transaction_count = transaction_list.count())
+            html = render_template('note.html', title="note", address=privateKey.address, uploaded_message=message)
             return html
     except Exception as e:
         print(e)
@@ -358,7 +336,7 @@ def get_tx(addr = ''):
         print("addr: %s; start_index:%s;cnt: %s" % (addr, start_index, cnt))
         # search mongodb transaction records from start_index to cnt.
         trans_list = []
-        transaction_list = mongo.db.transaction.find()
+        transaction_list = mongo.db.transaction.find(filter={'address': addr }, sort=[("_id",DESCENDING)])
         if transaction_list.count() > 0:
             maxcount = transaction_list.count()
             if start_index + cnt <= transaction_list.count():
@@ -378,6 +356,49 @@ def get_tx(addr = ''):
                     res_get_textdata.append(item.data)
         print(res_get_textdata)
         return jsonify({ 'textdata_list': res_get_textdata }), 200
+    except Exception as e:
+        print(e)
+        return "", 500
+
+@app.route('/api/upload_text', methods=["POST"])
+def upload_text():
+    try:
+        app.logger.info("start /api/upload_text")
+        if request.headers['Content-Type'] != 'application/json':
+            print(request.headers['Content-Type'])
+            return jsonify(res='error'), 400
+        mnemonic_words = request.json['mnemonic_words']
+        message = request.json['message']
+        bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
+        privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif, network = 'test')
+
+        encoding = "utf-8"
+        print("bip39Mnemonic.privatekey_wif")
+        print(bip39Mnemonic.privatekey_wif)
+        message_bytes = message.encode(encoding)
+        message_bytes_length = len(message_bytes)
+        print(message_bytes_length)
+        if(message_bytes_length >= 100000):   #more less 100kb = 100000bytes.
+            return jsonify(res='error'), 400
+
+        req_bytearray = bytearray(message_bytes)
+        #transaction = uploader.bcat_parts_send_from_binary(req_file_bytearray)
+        media_type = "text/plain"
+        print(media_type)
+        print(encoding)
+        file_name = format(datetime.date.today(), '%Y%m%d')
+        #upload data
+        uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
+        print(uploader.filter_utxos_for_bcat())
+        rawtx = uploader.b_create_rawtx_from_binary(req_bytearray, media_type, encoding, file_name)
+        txid = uploader.send_rawtx(rawtx)
+        mongo.db.transaction.insert({"address": privateKey.address, "txid": txid})
+        #transaction = uploader.upload_b(filepath)
+        #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
+        print("upload txid")
+        print(txid)
+
+        return jsonify(res = 'ok'), 200
     except Exception as e:
         print(e)
         return "", 500

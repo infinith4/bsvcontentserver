@@ -6,57 +6,14 @@
   src="https://code.jquery.com/jquery-3.4.1.min.js"
   integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
   crossorigin="anonymous"></script>
-  <script>
-    $(function(){
-        var address = $('#address').text()
-        var transaction_count_str = $('input#transaction_count').val()
-        var transaction_count = parseInt(transaction_count_str)
-        var percnt = 5
-        var current_transaction_index = 0;
-
-        var offset_bottomMenu = $('.bottomMenu').offset();
-        var request_current_transaction_index_list = [];
-        $(document).scroll(function() {
-            //$(window).height() - $(".bottomMenu")
-            var scrollTop = $(this).scrollTop()
-            var diff_bottom_content = offset_bottomMenu.top - window.innerHeight
-            if (diff_bottom_content <= scrollTop) {
-                $('.bottomMenu').css('visibility', 'visible');
-                if($.inArray(current_transaction_index, request_current_transaction_index_list) == -1) {
-                    request_current_transaction_index_list.push(current_transaction_index);
-                    requestApiTx(current_transaction_index, percnt).done(function(jsondata) {
-                        $.each( jsondata['textdata_list'], function( index, value ) {
-                                content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + current_transaction_index + '"><p class="text-left">' + value + '</p></div>';
-                                $('.textdata_list').append(content);
-                                current_transaction_index += 1
-                            });
-                        console.log(current_transaction_index);
-                    }).fail(function(jsondata) {
-                        console.log("error");
-                    });
-                }
-                offset_bottomMenu = $('.bottomMenu').offset();
-            } else {
-                $('.bottomMenu').css('visibility', 'hidden');
-            }
-        });
-
-        var requestApiTx = function(current_transaction_index, percnt){
-            return $.ajax({
-                type: "GET",
-                url: "/api/tx/" + address + "?start_index=" + current_transaction_index + "&cnt=" + percnt,
-                dataType: "json",
-            });
-        };
-    });
-  </script>
+<script src="/static/js/note.js"></script>
 <div class="form">
     <div class="container">
         <div class="pb-2 mt-4 mb-2 border-bottom">
             <h4>Note(testnet)</h4>
         </div>
         <label id="address">{{address}}</label>
-        <input id="transaction_count" type='text' value='{{transaction_count}}' />
+        <input id="transaction_count" type='hidden' value='{{transaction_count}}' />
         <div>
             {% if error_msg %}
             <div class="alert alert-danger" role="alert">
@@ -70,7 +27,7 @@
                 <input type="text" name = "mnemonic_words" class="form-control">
                 <label for="message">message</label>
                 <textarea name = "message" rows="6" cols="40" class="form-control" maxlength="200"></textarea>
-                <input type ="submit" value ="send" class="btn btn-outline-primary mt-4 float-right ">
+                <input id="send_upload_text" type ="button" value='send' class="btn btn-outline-primary mt-4 float-right ">
             </div>
         </form>
     </div>
@@ -79,20 +36,16 @@
         <div class="pb-2 mt-4 mb-2 border-bottom">
             <h4>note</h4>
         </div>
-        <div class="mt-1 mb-1 border-bottom">
-            <p class="text-left">
-                {{uploaded_message}}
-            </p>
-        </div>
-        <!-- {% for item in textdata_list %}
+        <div class="upload_textdata_list"></div>
+        {% for item in textdata_list %}
         <div class="mt-1 mb-1 border-bottom">
             <p class="text-left">
                 {{item}}
             </p>
         </div>
-        {% endfor %} -->
+        {% endfor %}
         <div class="textdata_list"></div>
-        <div class='bottomMenu' style="width: 1px; height: 100px;visibility:hidden;"></div>
+        <div class='bottom_loadnote' style="width: 1px; height: 100px;visibility:hidden;"></div>
     </div>
 </div>
 {% endblock %}
