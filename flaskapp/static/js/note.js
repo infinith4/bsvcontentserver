@@ -11,7 +11,6 @@ $(function(){
         var scrollTop = $(this).scrollTop()
         var diff_bottom_content = offset_bottom_loadnote.top - window.innerHeight
         if (diff_bottom_content <= scrollTop) {
-            $('.bottom_loadnote').css('visibility', 'visible');
             if($.inArray(current_transaction_index, request_current_transaction_index_list) == -1) {
                 request_current_transaction_index_list.push(current_transaction_index);
                 maxpercnt = percnt;
@@ -19,15 +18,20 @@ $(function(){
                     maxpercnt = transaction_count;
                 }
 
-                console.log("current_transaction_index: " + current_transaction_index + ", maxpercnt: " + maxpercnt);
+                console.log("current_transaction_index: " + current_transaction_index + ", maxpercnt: " + maxpercnt + "transaction_count:" + transaction_count);
                 if(current_transaction_index < transaction_count) {
+                    if(maxpercnt <= transaction_count){
+                        $('.bottom_loadnote').css('visibility', 'visible');
+                    }
                     requestApiTx(current_transaction_index, maxpercnt).done(function(jsondata) {
                         $.each( jsondata['textdata_list'], function( index, value ) {
                                 content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + current_transaction_index + '"><p class="text-left">' + value + '</p></div>';
                                 $('.textdata_list').append(content);
+                                console.log("current_transaction_index:" + current_transaction_index);
                                 current_transaction_index += 1
                             });
-                        console.log(current_transaction_index);
+                        console.log("current_transaction_index:" + current_transaction_index);
+                        $('.bottom_loadnote').css('visibility', 'hidden');
                     }).fail(function(jsondata) {
                         console.log("error");
                     });
