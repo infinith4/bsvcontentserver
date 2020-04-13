@@ -18,7 +18,7 @@ $(function(){
                     maxpercnt = transaction_count;
                 }
 
-                console.log("current_transaction_index: " + current_transaction_index + ", maxpercnt: " + maxpercnt + "transaction_count:" + transaction_count);
+                //console.log("current_transaction_index: " + current_transaction_index + ", maxpercnt: " + maxpercnt + "transaction_count:" + transaction_count);
                 if(current_transaction_index < transaction_count) {
                     if(maxpercnt <= transaction_count){
                         $('.bottom_loadnote').css('visibility', 'visible');
@@ -27,10 +27,10 @@ $(function(){
                         $.each( jsondata['textdata_list'], function( index, value ) {
                                 content = '<div class="mt-1 mb-1 border-bottom" id="textdata_' + current_transaction_index + '"><p class="text-left">' + value + '</p></div>';
                                 $('.textdata_list').append(content);
-                                console.log("current_transaction_index:" + current_transaction_index);
+                                //console.log("current_transaction_index:" + current_transaction_index);
                                 current_transaction_index += 1
                             });
-                        console.log("current_transaction_index:" + current_transaction_index);
+                        //console.log("current_transaction_index:" + current_transaction_index);
                         $('.bottom_loadnote').css('visibility', 'hidden');
                     }).fail(function(jsondata) {
                         console.log("error");
