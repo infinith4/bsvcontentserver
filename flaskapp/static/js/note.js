@@ -45,6 +45,7 @@ $(function(){
                 content = '<div class="mt-1 mb-1 border-bottom"><p class="text-left">' + message + '</p></div>';
                 $('.upload_textdata_list').prepend(content);
                 $("input[name='mnemonic_words']").val("");
+                $("textarea[name='message']").val("");
               })
         .fail(function(jqXHR, textStatus, errorThrown){
                 console.log("failed");
