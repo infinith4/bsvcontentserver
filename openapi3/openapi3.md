@@ -1,8 +1,11 @@
+```
 wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/4.3.0/openapi-generator-cli-4.3.0.jar -O openapi-generator-cli.jar
+
 sudo apt install openjdk-11-jdk
 
 
 java -jar openapi-generator-cli.jar generate -i https://raw.githubusercontent.com/openapitools/openapi-generator/master/modules/openapi-generator/src/test/resources/2_0/petstore.yaml -g python-flask -o ./output/python-flask
+```
 
 
 https://editor.swagger.io/
