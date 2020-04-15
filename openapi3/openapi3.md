@@ -13,22 +13,17 @@ https://editor.swagger.io/
 ```
 openapi: 3.0.1
 info:
-  description: This is a sample server Petstore server. For this sample, you can use
-    the api key `special-key` to test the authorization filters.
+  description: This is `bsvcontentserver`.
   license:
-    name: Apache-2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
   title: OpenAPI BsvContent
   version: 1.0.0
 servers:
 - url: https://bsvcontent.herokuapp.com/v1
 tags:
-- description: Everything about your Pets
-  name: pet
-- description: Access to Petstore orders
-  name: store
-- description: Operations about user
-  name: user
+- description: use api in bsvcontent
+  name: api
 paths:
   /api/upload_text:
     post:
@@ -38,7 +33,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RequestUploadTextModel'
-        description: Pet object that needs to be added to the store
+        description: upload text data on Bitcoin SV.
         required: true
       responses:
         "405":
@@ -48,31 +43,40 @@ paths:
       - petstore_auth:
         - write:pets
         - read:pets
-      summary: Add a new pet to the store
+      summary: upload text data on Bitcoin SV.
       tags:
-      - pet
+      - api
       x-codegen-request-body-name: body
-      x-openapi-router-controller: openapi_server.controllers.pet_controller
+      x-openapi-router-controller: openapi_server.controllers.api_uploadtext_controller
   /api/tx:
     get:
-      description: Multiple status values can be provided with comma separated strings
-      operationId: find_pets_by_status
+      description: get transaction from mongodb.
+      operationId: api_tx
       parameters:
-      - description: Status values that need to be considered for filter
-        explode: false
+      - description: bitcoin sv address
+        explode: true
         in: path
         name: addr
         required: true
         schema:
           type: string
+      - description: start index ( default is 0 )
+        explode: true
+        in: query
+        name: start_index
+        required: false
+        schema:
+          type: integer
+      - description: count ( default is 5 )
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          type: integer
       responses:
         "200":
           content:
-            application/xml:
-              schema:
-                items:
-                  $ref: '#/components/schemas/RequestAddressModel'
-                type: array
             application/json:
               schema:
                 items:
@@ -88,7 +92,7 @@ paths:
         - read:pets
       summary: Finds Pets by status
       tags:
-      - pet
+      - api
       x-openapi-router-controller: openapi_server.controllers.pet_controller
   /api/add_address:
     post:
@@ -112,7 +116,7 @@ paths:
           description: Invalid Order
       summary: Place an order for a pet
       tags:
-      - store
+      - api
       x-codegen-request-body-name: body
       x-openapi-router-controller: openapi_server.controllers.store_controller
 
