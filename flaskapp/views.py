@@ -5,12 +5,10 @@ import requests
 import json
 import binascii
 import bitsv
-from flaskapp.bip39mnemonic import Bip39Mnemonic
 import os
 # ファイル名をチェックする関数
 from werkzeug.utils import secure_filename
 import polyglot  # pip3 install polyglot-bitcoin
-import requests
 import json
 import datetime
 import time
@@ -92,15 +90,21 @@ def mnemonic():
             title="mnemonic")
         return html
 
-@app.route("/upload", methods=["GET"])
+@app.route("/upload", methods=["GET", "POST"])
 def upload_file():
     if request.method == 'GET':
         html = render_template('upload.html', title="upload")
         return html
     # リクエストがポストかどうかの判別
     elif request.method == 'POST':
-        bsv_mnemonic = request.form["mnemonic"]  #app.config['TESTNET_MNEMONIC']
-        bip39Mnemonic = Bip39Mnemonic(bsv_mnemonic, passphrase="", network="test")
+        mnemonic_words = request.form["mnemonic"]  #app.config['TESTNET_MNEMONIC']
+        url = api_base_url + "/api/mnemonic"
+        headers = {"content-type": "application/json", "x-api-key": "apikey0"}
+        jsondata = {"mnemonic": mnemonic_words }
+        r = requests.post(url, headers=headers, json=jsondata)
+        if r.status_code != 200:
+            return None
+        response_json = r.json()
         
         # ファイルがなかった場合の処理
         if 'file' not in request.files:
@@ -124,17 +128,45 @@ def upload_file():
             # ファイルの保存
             #filepath = os.path.join(app.config['UPLOAD_FOLDER'], req_file.filename)
             #req_file.save(filepath)
-            uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, 'test')
-            print(uploader.network)
-            req_file_bytearray = bytearray(stream.read())
-            print(req_file_bytearray)
-            #transaction = uploader.bcat_parts_send_from_binary(req_file_bytearray)
-            media_type = uploader.get_media_type_for_file_name(req_file.filename)
-            encoding = uploader.get_encoding_for_file_name(req_file.filename)
-            print(media_type)
-            print(encoding)
-            rawtx = uploader.b_create_rawtx_from_binary(req_file_bytearray, media_type, encoding, req_file.filename)
-            txid = uploader.send_rawtx(rawtx)
+            privatekey_wif = response_json["privatekey_wif"]
+            print(privatekey_wif)
+
+            url = api_base_url + "/api/upload"
+            payload = {'privatekey_wif': privatekey_wif}
+            #files = [('file', open('/home/th4/Pictures/mmexport1497437415120.jpg','rb'))]
+            #files = {'file': (req_file.filename, 'data:image/jpeg;base64,000000000','image/jpeg')}
+            #form_params = []
+            #local_var_files = {}
+            #form_params.append(('privatekey_wif', "cTqvJoYPXAKUuNWre4B53LDSUQNRq8P6vcRHtrTEnrSSNhUynysF"))  # noqa: E501
+            #local_var_files['file'] = open('/home/th4/Pictures/mmexport1497437415120.jpg', 'rb')  # noqa: E501
+            headers = {'x-api-key': 'apikey0'}
+            fileName = req_file.filename
+            #fileDataBinary = open('/home/th4/Pictures/mmexport1497437415120.jpg', 'rb').read()
+            fileDataBinary = bytearray(stream.read())
+            ext = fileName.split(r".")[1].strip(r"'")
+            media_type = get_media_type_for_extension(ext)
+            files = {'file': (fileName, fileDataBinary, media_type)}
+            # jsondata = json.dumps(payload)
+            # r = requests.post(url, headers=headers, data =jsondata , files = files)
+            #url = 'https://httpbin.org/post'
+            #files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')}
+            
+            r = requests.post(url, files=files, data=payload, headers=headers)
+
+            print(r.text.encode('utf8'))
+
+            # url = "http://0.0.0.0:8080/v1" + "/api/upload"
+            # headers = {"content-type": "multipart/form-data", "x-api-key": "apikey0"}
+            # jsondata = {"mnemonic": mnemonic_words }
+            # data = {'privatekey_wif': privatekey_wif}
+            # files = {'file': (req_file.filename,
+            #        'data:image/jpeg;base64,000000000',
+            #        'image/jpeg')}
+            # r = requests.post(url, headers=headers, data=data, files = files)
+            if r.status_code != 200:
+                return None
+            response_json = r.json()
+            txid = response_json["txid"]
             #transaction = uploader.upload_b(filepath)
             #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
             print(txid)
@@ -142,7 +174,7 @@ def upload_file():
             html = render_template(
                 'uploaded.html', 
                 transaction = txid, 
-                privatekey_wif = bip39Mnemonic.privatekey_wif,
+                privatekey_wif = privatekey_wif,
                 title="mnemonic")
 
             return html
@@ -150,9 +182,28 @@ def upload_file():
             html = render_template(
                 'uploaded.html', 
                 transaction = "error", 
-                privatekey_wif = bip39Mnemonic.privatekey_wif,
+                privatekey_wif = privatekey_wif,
                 title="mnemonic")
             return html
+
+def get_media_type_for_extension(ext):
+    return MEDIA_TYPE[str(ext)]
+
+MEDIA_TYPE = {
+    # Images
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+
+    # Documents
+    'txt': 'text/plain',
+    'html': 'text/html',
+    'css': 'text/css',
+    'js': 'text/javascript',
+    'pdf': 'application/pdf',
+
+    # Audio
+    'mp3': 'audio/mp3',
+}
 
 # アップロードされる拡張子の制限
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'gif', 'txt'])
@@ -221,26 +272,23 @@ def note(qaddr=''):
             elapsed_time = t2-t1
             print(f"経過時間：{elapsed_time}")
             print(res_get_textdata)
-            # for item in res_get_textdata:
-            #     if item is not None:
-            #         print(item)
-            # for i in range(0, len(transactions), maxcount):
-            #     res_get_textdata = get_transactions_datalist(transactions[i:maxcount+i])
             html = render_template('note.html', title="note", address = qaddr, textdata_list=res_get_textdata, transaction_count = transaction_list.count())
             return html
         elif request.method == "POST":
             mnemonic_words = request.form["mnemonic_words"]
-            bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
-            privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif, network = 'test')
-
             message = request.form["message"]
-
+            url = api_base_url + "/api/mnemonic"
+            headers = {"content-type": "application/json", "x-api-key": "apikey0"}
+            jsondata = {"mnemonic": mnemonic_words}
+            r = requests.post(url, headers=headers, json=jsondata)
+            if r.status_code != 200:
+                return None
+            response_json = r.json()
+            privatekey_wif = response_json["privatekey_wif"]
+            address = response_json["address"]
             encoding = "utf-8"
-            print("bip39Mnemonic.privatekey_wif")
-            print(bip39Mnemonic.privatekey_wif)
             message_bytes = message.encode(encoding)
             message_bytes_length = len(message_bytes)
-            print(message_bytes_length)
             if(message_bytes_length >= 100000):   #more less 100kb = 100000bytes.
                 html = render_template('note.html', title="note", error_msg="text data have to be 100kb or less")
                 return html
@@ -252,11 +300,11 @@ def note(qaddr=''):
             print(encoding)
             file_name = format(datetime.date.today(), '%Y%m%d')
             #upload data
-            uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
+            uploader = polyglot.Upload(privatekey_wif, network='test')
             print(uploader.filter_utxos_for_bcat())
             rawtx = uploader.b_create_rawtx_from_binary(req_bytearray, media_type, encoding, file_name)
             txid = uploader.send_rawtx(rawtx)
-            mongo.db.transaction.insert({"address": privateKey.address, "txid": txid})
+            mongo.db.transaction.insert({"address": address, "txid": txid})
             #transaction = uploader.upload_b(filepath)
             #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
             print("upload txid")
@@ -366,30 +414,33 @@ def upload_text():
             return jsonify(res='error'), 400
         mnemonic_words = request.json['mnemonic_words']
         message = request.json['message']
-        bip39Mnemonic = Bip39Mnemonic(mnemonic_words, passphrase="", network="test")
-        privateKey = bitsv.Key(bip39Mnemonic.privatekey_wif, network = 'test')
-
+        url = api_base_url + "/api/mnemonic"
+        headers = {"content-type": "application/json", "x-api-key": "apikey0"}
+        jsondata = {"mnemonic": mnemonic_words }
+        r = requests.post(url, headers=headers, json=jsondata)
+        if r.status_code != 200:
+            return None
+        response_json = r.json()
         encoding = "utf-8"
-        print("bip39Mnemonic.privatekey_wif")
-        print(bip39Mnemonic.privatekey_wif)
+        privatekey_wif = response_json["privatekey_wif"]
+        address = response_json["address"]
         message_bytes = message.encode(encoding)
         message_bytes_length = len(message_bytes)
         print(message_bytes_length)
         if(message_bytes_length >= 100000):   #more less 100kb = 100000bytes.
             return jsonify(res='error'), 400
+        response_json = r.json()
+        encoding = "utf-8"
 
-        req_bytearray = bytearray(message_bytes)
-        #transaction = uploader.bcat_parts_send_from_binary(req_file_bytearray)
-        media_type = "text/plain"
-        print(media_type)
-        print(encoding)
-        file_name = format(datetime.date.today(), '%Y%m%d')
-        #upload data
-        uploader = polyglot.Upload(bip39Mnemonic.privatekey_wif, network='test')
-        print(uploader.filter_utxos_for_bcat())
-        rawtx = uploader.b_create_rawtx_from_binary(req_bytearray, media_type, encoding, file_name)
-        txid = uploader.send_rawtx(rawtx)
-        mongo.db.transaction.insert({"address": privateKey.address, "txid": txid})
+        url = api_base_url + "/api/upload_text"
+        headers = {"content-type": "application/json", "x-api-key": "apikey0"}
+        jsondata = {"mnemonic_words": mnemonic_words, "message": message }
+        r = requests.post(url, headers=headers, json=jsondata)
+        if r.status_code != 200:
+            return None
+        response_json = r.json()
+        txid = response_json["txid"]
+        mongo.db.transaction.insert({"address": address, "txid": txid})
         #transaction = uploader.upload_b(filepath)
         #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
         print("upload txid")
