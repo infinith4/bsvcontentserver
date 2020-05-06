@@ -16,6 +16,7 @@ import time
 from flaskapp.lib.whats_on_chain_lib import WhatsOnChainLib
 
 api_base_url = "https://bnoteapi.herokuapp.com/v1"
+bnoteapi_apikey = "apikey0"
 
 # import logging
 # logging.basicConfig(filename='example.log',level=logging.DEBUG)
@@ -99,7 +100,7 @@ def upload_file():
     elif request.method == 'POST':
         mnemonic_words = request.form["mnemonic"]  #app.config['TESTNET_MNEMONIC']
         url = api_base_url + "/api/mnemonic"
-        headers = {"content-type": "application/json", "x-api-key": "apikey0"}
+        headers = {"content-type": "application/json", "x-api-key": bnoteapi_apikey}
         jsondata = {"mnemonic": mnemonic_words }
         r = requests.post(url, headers=headers, json=jsondata)
         if r.status_code != 200:
@@ -133,49 +134,27 @@ def upload_file():
 
             url = api_base_url + "/api/upload"
             payload = {'privatekey_wif': privatekey_wif}
-            #files = [('file', open('/home/th4/Pictures/mmexport1497437415120.jpg','rb'))]
-            #files = {'file': (req_file.filename, 'data:image/jpeg;base64,000000000','image/jpeg')}
-            #form_params = []
-            #local_var_files = {}
-            #form_params.append(('privatekey_wif', "cTqvJoYPXAKUuNWre4B53LDSUQNRq8P6vcRHtrTEnrSSNhUynysF"))  # noqa: E501
-            #local_var_files['file'] = open('/home/th4/Pictures/mmexport1497437415120.jpg', 'rb')  # noqa: E501
-            headers = {'x-api-key': 'apikey0'}
+            headers = {'x-api-key': bnoteapi_apikey}
             fileName = req_file.filename
-            #fileDataBinary = open('/home/th4/Pictures/mmexport1497437415120.jpg', 'rb').read()
             fileDataBinary = bytearray(stream.read())
             ext = fileName.split(r".")[1].strip(r"'")
             media_type = get_media_type_for_extension(ext)
             files = {'file': (fileName, fileDataBinary, media_type)}
-            # jsondata = json.dumps(payload)
-            # r = requests.post(url, headers=headers, data =jsondata , files = files)
-            #url = 'https://httpbin.org/post'
-            #files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')}
-            
             r = requests.post(url, files=files, data=payload, headers=headers)
 
             print(r.text.encode('utf8'))
 
-            # url = "http://0.0.0.0:8080/v1" + "/api/upload"
-            # headers = {"content-type": "multipart/form-data", "x-api-key": "apikey0"}
-            # jsondata = {"mnemonic": mnemonic_words }
-            # data = {'privatekey_wif': privatekey_wif}
-            # files = {'file': (req_file.filename,
-            #        'data:image/jpeg;base64,000000000',
-            #        'image/jpeg')}
-            # r = requests.post(url, headers=headers, data=data, files = files)
             if r.status_code != 200:
                 return None
             response_json = r.json()
             txid = response_json["txid"]
-            #transaction = uploader.upload_b(filepath)
-            #['5cd293a25ecf0b346ede712ceb716f35f1f78e2c5245852eb8319e353780c615']
             print(txid)
             # アップロード後のページに転送
             html = render_template(
                 'uploaded.html', 
                 transaction = txid, 
                 privatekey_wif = privatekey_wif,
-                title="mnemonic")
+                title="success uploaded")
 
             return html
         else:
@@ -183,7 +162,7 @@ def upload_file():
                 'uploaded.html', 
                 transaction = "error", 
                 privatekey_wif = privatekey_wif,
-                title="mnemonic")
+                title="failed upload")
             return html
 
 def get_media_type_for_extension(ext):
